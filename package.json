@@ -24,6 +24,7 @@
     "url": "https://github.com/yefei/zenweb-grid/issues"
   },
   "devDependencies": {
+    "@zenweb/form": "^1.14.0",
     "eslint": "^8.4.1",
     "koa": "^2.13.4",
     "zenorm": "^2.2.0"
