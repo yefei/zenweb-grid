@@ -1,41 +1,48 @@
-'use strict';
+import { BaseContext } from 'koa';
+import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
+import { Column } from "./column";
+import { Filter } from "./filter";
+import { FetchResult, Finder, JsonWhere } from "./types";
 
-const { Form } = require('@zenweb/form');
-const Column = require('./column');
-const Filter = require('./filter');
+const FILTER_PREFIX: string = 'filter_';
 
-const FILTER_PREFIX = 'filter_';
+export class Grid {
+  private _ctx: BaseContext;
+  private _columns: { [key: string]: Column } = {};
+  private _limit: number = 10;
+  private _maxLimit: number = 100;
+  private _order: any = null;
+  private _filters: { [key: string]: Filter } = {};
+  private _filterFields: Fields = {};
+  private _filterWheres: JsonWhere;
+  private _filterForm: Form;
+  private _offset: number;
 
-class Grid {
-  constructor(core) {
-    this._core = core;
-    /** @type { {[key: string]: Column} } */
-    this._columns = {};
-    this._limit = 10;
-    this._maxLimit = 100;
-    this._order = null;
-    /** @type { {[key: string]: Filter } } */
-    this._filters = {};
-    this._filterFields = [];
+  constructor(ctx: BaseContext) {
+    this._ctx = ctx;
     this._filterWheres = {};
   }
 
-  column(key) {
+  /**
+   * 定义列
+   * @param key 字段key 唯一
+   */
+  column(key: string) {
     if (!this._columns[key]) {
       this._columns[key] = new Column(this, key);
     }
     return this._columns[key];
   }
 
-  filter(key, field) {
+  filter(key: string, field: FieldType) {
     this._filters[key] = new Filter(this, key, field);
     this._filterFields[FILTER_PREFIX + key] = field;
     return this._filters[key];
   }
 
-  filterForm(data) {
+  filterForm(data?: FormData) {
     if (!this._filterForm) {
-      this._filterForm = new Form(this._core, { required: false });
+      this._filterForm = new Form({ required: false });
       this._filterForm.init({
         fields: this._filterFields,
       }, data);
@@ -45,67 +52,53 @@ class Grid {
 
   /**
    * 默认条数限制
-   * @param {number} defaultLimit 默认条数
-   * @param {number} [maxLimit] 最大条数
+   * @param defaultLimit 默认条数
+   * @param maxLimit 最大条数
    */
-  setLimit(limit, maxLimit) {
+  setLimit(limit: number, maxLimit?: number) {
     this._limit = limit;
-    this._maxLimit = maxLimit;
+    this._maxLimit = maxLimit || 100;
     return this;
   }
 
   /**
    * 设置默认排序
-   * @param {string} column 
+   * @param column 
    */
-  setOrder(column) {
+  setOrder(column: string) {
     this._order = column;
     return this;
   }
 
-  /**
-   * @param {import('koa').BaseContext} ctx
-   */
-  query(ctx) {
-    const queryFields = {
-      limit: {
-        type: 'int',
-        validate: {
-          gte: 1,
-          lte: this._maxLimit,
-        }
-      },
-      offset: {
-        type: 'int',
-        validate: {
-          gte: 0,
-          lte: Number.MAX_VALUE,
-        }
-      },
-      order: 'trim',
-    };
+  private _query() {
+    const pageForm = new Form({ required: false });
+    pageForm.init({
+      fields: {
+        limit: fields.int('条数').validate({ gte: 1, lte: this._maxLimit }),
+        offset: fields.int('行位置').validate({ gte: 0, lte: Number.MAX_VALUE }),
+        order: fields.trim('排序'),
+      }
+    }, this._ctx.query);
     // 查询数据
-    const params = ctx.helper.query(queryFields);
+    const params = pageForm.data;
     if (params.limit) this._limit = params.limit;
     if (params.offset) this._offset = params.offset;
     if (params.order) {
-      const allowOrders = Object.values(this._columns).filter(i => i._sortable).map(i => i._key);
+      const allowOrders = Object.values(this._columns).filter(i => i.isSortable).map(i => i.key);
       if (allowOrders.includes(params.order.startsWith('-') ? params.order.slice(1) : params.order)) {
         this._order = params.order;
       }
     }
     // 过滤查询
-    const filterData = this.filterForm(ctx.query).data;
+    const filterData = this.filterForm(this._ctx.query).data;
     for (const [key, value] of Object.entries(filterData)) {
       Object.assign(this._filterWheres, this._filters[key.slice(FILTER_PREFIX.length)].whereBuilder(value));
     }
     return this;
   }
-
-  /**
-   * @param {import('zenorm').Finder} finder
-   */
-  async fetch(finder) {
+ 
+  async fetch(finder: Finder): Promise<FetchResult> {
+    this._query();
     // 排序
     if (this._order) {
       finder.order(this._order);
@@ -116,7 +109,7 @@ class Grid {
     }
     // 分页并取得指定列
     const columnList = Object.values(this._columns);
-    const dbColumns = columnList.filter(i => !i._virtual).map(i => i._key);
+    const dbColumns = columnList.filter(i => !i.isVirtual).map(i => i.key);
     const limit = this._limit;
     const offset = this._offset || 0;
     const result = await finder.page({
@@ -125,21 +118,14 @@ class Grid {
     }, ...dbColumns);
 
     const filterForm = this.filterForm();
-    // 取得自定义渲染列
-    const columnRenderFuncs = {};
-    for (const col of columnList) {
-      if (col._renderFunc) {
-        columnRenderFuncs[col._key] = col._renderFunc;
-      }
-    }
 
     // 处理结果行
     const data = [];
     for (const row of result.list) {
-      const d = {};
+      const d: { [key: string]: any } = {};
       for (const col of columnList) {
-        const value = row[col._key];
-        d[col._key] = col._renderFunc ? col._renderFunc(value, row, col._key) : value;
+        const value = row[col.key];
+        d[col.key] = col.renderFunc ? col.renderFunc(value, row, col.key) : value;
       }
       data.push(d);
     }
@@ -148,7 +134,7 @@ class Grid {
       filter: {
         fields: filterForm.fields,
         layout: filterForm.layout,
-        errors: filterForm.errorMessages,
+        errors: filterForm.errorMessages(this._ctx.messageCodeResolver),
       },
       columns: columnList.map(i => i.exports),
       data,
@@ -160,5 +146,3 @@ class Grid {
     };
   }
 }
-
-module.exports = Grid;
