@@ -1,15 +1,14 @@
 {
   "name": "@zenweb/grid",
-  "version": "1.2.1",
+  "version": "2.3.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublishOnly": "tsc --build --clean && tsc"
   },
   "author": {
     "name": "YeFei",
@@ -28,11 +27,9 @@
     "url": "https://github.com/yefei/zenweb-grid/issues"
   },
   "devDependencies": {
-    "@types/koa": "^2.13.4",
-    "@zenweb/core": "^2.0.1",
-    "@zenweb/form": "^2.2.2",
-    "eslint": "^8.4.1",
-    "typecasts": "^1.9.1",
-    "zenorm": "^2.2.0"
+    "@zenweb/core": "^2.3.2",
+    "@zenweb/form": "^2.3.3",
+    "@zenweb/messagecode": "^2.3.0",
+    "@zenweb/router": "^2.3.0"
   }
 }

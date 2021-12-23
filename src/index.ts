@@ -1,9 +1,12 @@
-import { Core } from '@zenweb/core';
+import { SetupFunction } from '@zenweb/core';
 export { Grid } from './grid';
 export * from './types';
 
 /**
  * 安装
  */
-export function setup(core: Core) {
+export default function setup(): SetupFunction {
+  return function grid(setup) {
+    setup.checkCoreProperty('messageCodeResolver', 'need to setup @zenweb/messagecode');
+  }
 }

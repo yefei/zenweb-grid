@@ -1,4 +1,4 @@
-import { BaseContext } from 'koa';
+import { Context } from 'koa';
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column } from "./column";
 import { Filter } from "./filter";
@@ -7,7 +7,7 @@ import { FetchResult, Finder, JsonWhere } from "./types";
 const FILTER_PREFIX: string = 'filter_';
 
 export class Grid {
-  private _ctx: BaseContext;
+  private _ctx: Context;
   private _columns: { [key: string]: Column } = {};
   private _limit: number = 10;
   private _maxLimit: number = 100;
@@ -18,7 +18,7 @@ export class Grid {
   private _filterForm: Form;
   private _offset: number;
 
-  constructor(ctx: BaseContext) {
+  constructor(ctx: Context) {
     this._ctx = ctx;
     this._filterWheres = {};
   }
