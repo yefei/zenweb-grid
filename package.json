@@ -27,9 +27,13 @@
     "url": "https://github.com/yefei/zenweb-grid/issues"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "@zenweb/core": "^2.3.2",
     "@zenweb/form": "^2.3.3",
     "@zenweb/messagecode": "^2.3.0",
     "@zenweb/router": "^2.3.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

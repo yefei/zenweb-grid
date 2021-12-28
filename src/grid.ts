@@ -3,6 +3,7 @@ import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
+import { get as loGet } from 'lodash';
 
 const FILTER_PREFIX: string = 'filter_';
 
@@ -124,7 +125,7 @@ export class Grid {
     for (const row of result.list) {
       const d: { [key: string]: any } = {};
       for (const col of columnList) {
-        const value = row[col.key];
+        const value = col.key in row ? row[col.key] : loGet(row, col.key);
         d[col.key] = col.formatterFunc ? col.formatterFunc(value, row, col.key) : value;
       }
       data.push(d);
