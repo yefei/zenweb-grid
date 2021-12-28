@@ -3,7 +3,7 @@ import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
-import { get as loGet } from 'lodash';
+import { cloneDeep, get as objGet, set as objSet } from 'lodash';
 
 const FILTER_PREFIX: string = 'filter_';
 
@@ -121,14 +121,18 @@ export class Grid {
     const filterForm = this.filterForm();
 
     // 处理结果行
-    const data = [];
-    for (const row of result.list) {
-      const d: { [key: string]: any } = {};
-      for (const col of columnList) {
-        const value = col.key in row ? row[col.key] : loGet(row, col.key);
-        d[col.key] = col.formatterFunc ? col.formatterFunc(value, row, col.key) : value;
+    let data = [];
+    const formatterList = columnList.filter(i => i.formatterFunc);
+    if (formatterList.length) {
+      for (const row of result.list) {
+        const d = cloneDeep(row);
+        for (const col of formatterList) {
+          objSet(d, col.key, col.formatterFunc(objGet(row, col.key), row, col.key));
+        }
+        data.push(d);
       }
-      data.push(d);
+    } else {
+      data = result.list;
     }
 
     return {
