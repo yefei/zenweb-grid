@@ -105,7 +105,7 @@ export class Grid {
     }
     // 过滤
     if (Object.keys(this._filterWheres).length) {
-      finder.where(this._filterWheres);
+      finder.whereAnd(this._filterWheres);
     }
     // 分页并取得指定列
     const columnList = Object.values(this._columns);

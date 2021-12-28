@@ -14,7 +14,7 @@ export interface PageOptions {
 export type ResultRow = { [key: string]: any };
 
 export interface Finder {
-  where(w: JsonWhere): Finder;
+  whereAnd(w: JsonWhere): Finder;
   order(...columns: string[]): Finder;
   page(page: PageOptions, ...columns: string[]): Promise<{ total: number, list: ResultRow[] }>;
 }
