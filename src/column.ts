@@ -7,6 +7,7 @@ export class Column {
   private _virtual: boolean = false;
   private _formatterFunc: FormatterFunc = null;
   private _attrs: ColumnExports;
+  private _hidden: boolean;
 
   constructor(grid: Grid, key: string) {
     this._grid = grid;
@@ -66,6 +67,18 @@ export class Column {
 
   get isVirtual() {
     return this._virtual;
+  }
+
+  /**
+   * 隐藏列显示
+   */
+  hidden(is = true) {
+    this._hidden = is;
+    return this;
+  }
+
+  get isHidden() {
+    return this._hidden;
   }
 
   /**

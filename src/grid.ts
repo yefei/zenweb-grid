@@ -141,7 +141,7 @@ export class Grid {
         layout: filterForm.layout,
         errors: filterForm.errorMessages(this._ctx.messageCodeResolver),
       },
-      columns: columnList.map(i => i.exports),
+      columns: columnList.filter(i => !i.isHidden).map(i => i.exports),
       data,
       total: result.total,
       limit,
