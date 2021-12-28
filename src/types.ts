@@ -21,13 +21,16 @@ export interface Finder {
 
 export type JsonWhere = { [key: string]: any | any[] | JsonWhere | JsonWhere[] };
 
-export type RenderFunc = (value: any, row: ResultRow, key: string) => any;
+export type FormatterFunc = (value: any, row: ResultRow, key: string) => any;
+
+export type ColumnAlignType = 'left' | 'center' | 'right';
 
 export interface ColumnExports {
   key: string;
   label?: string;
   sortable?: boolean;
   width?: string | number;
+  align?: ColumnAlignType;
 }
 
 export interface FetchResult {

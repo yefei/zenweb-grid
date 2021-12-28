@@ -1,26 +1,21 @@
 import { Grid } from "./grid";
-import { ColumnExports, RenderFunc } from "./types";
+import { ColumnAlignType, ColumnExports, FormatterFunc } from "./types";
 
 export class Column {
   private _grid: Grid;
   private _key: string;
-  private _label: any;
-  private _sortable: boolean = false;
   private _virtual: boolean = false;
-  private _renderFunc: RenderFunc = null;
-  private _width: string | number;
+  private _formatterFunc: FormatterFunc = null;
+  private _attrs: ColumnExports;
 
   constructor(grid: Grid, key: string) {
     this._grid = grid;
     this._key = key;
+    this._attrs = { key: this._key };
   }
 
   get exports() {
-    const attrs: ColumnExports = { key: this._key };
-    if (this._label) attrs.label = this._label;
-    if (this._sortable) attrs.sortable = this._sortable;
-    if (this._width) attrs.width = this._width;
-    return attrs;
+    return this._attrs;
   }
 
   get key() {
@@ -28,7 +23,7 @@ export class Column {
   }
 
   label(label: string) {
-    this._label = label;
+    this._attrs.label = label;
     return this;
   }
 
@@ -36,19 +31,28 @@ export class Column {
    * 设置为可排序列
    */
   sortable(order = true) {
-    this._sortable = order;
+    this._attrs.sortable = order;
     return this;
   }
 
   get isSortable() {
-    return this._sortable;
+    return this._attrs.sortable;
   }
 
   /**
    * 设置列宽度
    */
   width(width: string | number) {
-    this._width = width;
+    this._attrs.width = width;
+    return this;
+  }
+
+  /**
+   * 对齐方式
+   * @default 'left'
+   */
+  align(pos: ColumnAlignType) {
+    this._attrs.align = pos;
     return this;
   }
 
@@ -65,14 +69,14 @@ export class Column {
   }
 
   /**
-   * 自定义结果渲染
+   * 自定义结果格式
    */
-  render(func: RenderFunc) {
-    this._renderFunc = func;
+  formatter(func: FormatterFunc) {
+    this._formatterFunc = func;
     return this;
   }
 
-  get renderFunc() {
-    return this._renderFunc;
+  get formatterFunc() {
+    return this._formatterFunc;
   }
 }

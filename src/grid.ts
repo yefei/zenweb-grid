@@ -125,7 +125,7 @@ export class Grid {
       const d: { [key: string]: any } = {};
       for (const col of columnList) {
         const value = row[col.key];
-        d[col.key] = col.renderFunc ? col.renderFunc(value, row, col.key) : value;
+        d[col.key] = col.formatterFunc ? col.formatterFunc(value, row, col.key) : value;
       }
       data.push(d);
     }
