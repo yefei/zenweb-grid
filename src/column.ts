@@ -8,6 +8,7 @@ export class Column {
   private _sortable: boolean = false;
   private _virtual: boolean = false;
   private _renderFunc: RenderFunc = null;
+  private _width: string | number;
 
   constructor(grid: Grid, key: string) {
     this._grid = grid;
@@ -18,6 +19,7 @@ export class Column {
     const attrs: ColumnExports = { key: this._key };
     if (this._label) attrs.label = this._label;
     if (this._sortable) attrs.sortable = this._sortable;
+    if (this._width) attrs.width = this._width;
     return attrs;
   }
 
@@ -40,6 +42,14 @@ export class Column {
 
   get isSortable() {
     return this._sortable;
+  }
+
+  /**
+   * 设置列宽度
+   */
+  width(width: string | number) {
+    this._width = width;
+    return this;
   }
 
   /**

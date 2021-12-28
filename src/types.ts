@@ -27,6 +27,7 @@ export interface ColumnExports {
   key: string;
   label?: string;
   sortable?: boolean;
+  width?: string | number;
 }
 
 export interface FetchResult {

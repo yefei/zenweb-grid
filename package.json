@@ -1,6 +1,6 @@
 {
   "name": "@zenweb/grid",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "prepublishOnly": "tsc --build --clean && tsc"
+    "prepublishOnly": "rm -fr dist && tsc"
   },
   "author": {
     "name": "YeFei",
