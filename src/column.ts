@@ -1,50 +1,55 @@
-import { Grid } from "./grid";
-import { ColumnAlignType, ColumnExports, FormatterFunc } from "./types";
+import { ColumnAlignType, ColumnExports, FormatterCallback, SortCallback } from './types';
+
+export const COLUMN_KEY = Symbol('Column#key');
+export const COLUMN_VIRTUAL = Symbol('Column#virtual');
+export const COLUMN_FORMATTER_CALLBACK = Symbol('Column#formatter');
+export const COLUMN_EXPORTS = Symbol('Column#exports');
+export const COLUMN_HIDDEN = Symbol('Column#hidden');
+export const COLUMN_SORTABLE = Symbol('Column#sortable');
+export const COLUMN_SORT_CALLBACK = Symbol('Column#sortCallback');
 
 export class Column {
-  private _grid: Grid;
-  private _key: string;
-  private _virtual: boolean = false;
-  private _formatterFunc: FormatterFunc = null;
-  private _attrs: ColumnExports;
-  private _hidden: boolean;
+  [COLUMN_KEY]: string;
+  [COLUMN_VIRTUAL]: boolean = false;
+  [COLUMN_FORMATTER_CALLBACK]: FormatterCallback = null;
+  [COLUMN_EXPORTS]: ColumnExports;
+  [COLUMN_HIDDEN]: boolean;
+  [COLUMN_SORTABLE]: boolean;
+  [COLUMN_SORT_CALLBACK]: SortCallback;
 
-  constructor(grid: Grid, key: string) {
-    this._grid = grid;
-    this._key = key;
-    this._attrs = { key: this._key };
+  constructor(key: string) {
+    this[COLUMN_KEY] = key;
+    this[COLUMN_EXPORTS] = { key };
   }
 
   get exports() {
-    return this._attrs;
-  }
-
-  get key() {
-    return this._key;
+    const attrs: ColumnExports = Object.assign({}, this[COLUMN_EXPORTS]);
+    if (this[COLUMN_SORTABLE]) {
+      attrs.sortable = true;
+    }
+    return attrs;
   }
 
   label(label: string) {
-    this._attrs.label = label;
+    this[COLUMN_EXPORTS].label = label;
     return this;
   }
 
   /**
    * 设置为可排序列
+   * @param func 排序方法，如果指定则使用回调函数返回的排序规则，不指定则默认使用 key 排序
    */
-  sortable(order = true) {
-    this._attrs.sortable = order;
+  sortable(callback?: SortCallback) {
+    this[COLUMN_SORTABLE] = true;
+    this[COLUMN_SORT_CALLBACK] = callback;
     return this;
-  }
-
-  get isSortable() {
-    return this._attrs.sortable;
   }
 
   /**
    * 设置列宽度
    */
   width(width: string | number) {
-    this._attrs.width = width;
+    this[COLUMN_EXPORTS].width = width;
     return this;
   }
 
@@ -53,43 +58,31 @@ export class Column {
    * @default 'left'
    */
   align(pos: ColumnAlignType) {
-    this._attrs.align = pos;
+    this[COLUMN_EXPORTS].align = pos;
     return this;
   }
 
   /**
    * 是否为虚拟字段，不在数据库中字段
    */
-  virtual(is = true) {
-    this._virtual = is;
+  virtual() {
+    this[COLUMN_VIRTUAL] = true;
     return this;
-  }
-
-  get isVirtual() {
-    return this._virtual;
   }
 
   /**
    * 隐藏列显示
    */
-  hidden(is = true) {
-    this._hidden = is;
+  hidden() {
+    this[COLUMN_HIDDEN] = true;
     return this;
-  }
-
-  get isHidden() {
-    return this._hidden;
   }
 
   /**
    * 自定义结果格式
    */
-  formatter(func: FormatterFunc) {
-    this._formatterFunc = func;
+  formatter(callback: FormatterCallback) {
+    this[COLUMN_FORMATTER_CALLBACK] = callback;
     return this;
-  }
-
-  get formatterFunc() {
-    return this._formatterFunc;
   }
 }

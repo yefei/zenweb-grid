@@ -1,6 +1,6 @@
 import { Context } from 'koa';
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
-import { Column } from "./column";
+import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_VIRTUAL } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
 import { cloneDeep, get as objGet, set as objSet } from 'lodash';
@@ -12,7 +12,7 @@ export class Grid {
   private _columns: { [key: string]: Column } = {};
   private _limit: number = 10;
   private _maxLimit: number = 100;
-  private _order: any = null;
+  private _order: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: Fields = {};
   private _filterWheres: JsonWhere;
@@ -30,7 +30,7 @@ export class Grid {
    */
   column(key: string) {
     if (!this._columns[key]) {
-      this._columns[key] = new Column(this, key);
+      this._columns[key] = new Column(key);
     }
     return this._columns[key];
   }
@@ -84,9 +84,9 @@ export class Grid {
     const params = pageForm.data;
     if (params.limit) this._limit = params.limit;
     if (params.offset) this._offset = params.offset;
-    if (params.order) {
-      const allowOrders = Object.values(this._columns).filter(i => i.isSortable).map(i => i.key);
-      if (allowOrders.includes(params.order.startsWith('-') ? params.order.slice(1) : params.order)) {
+    if (typeof params.order === 'string') {
+      const orderKey = params.order.startsWith('-') ? params.order.slice(1) : params.order;
+      if (orderKey in this._columns && this._columns[orderKey][COLUMN_SORTABLE]) {
         this._order = params.order;
       }
     }
@@ -102,7 +102,10 @@ export class Grid {
     this._query();
     // 排序
     if (this._order) {
-      finder.order(this._order);
+      const orderDesc = this._order.startsWith('-');
+      const orderKey = orderDesc ? this._order.slice(1) : this._order;
+      const orderCall = this._columns[orderKey][COLUMN_SORT_CALLBACK];
+      finder.order(...(orderCall ? orderCall(orderDesc) : [this._order]));
     }
     // 过滤
     if (Object.keys(this._filterWheres).length) {
@@ -110,7 +113,7 @@ export class Grid {
     }
     // 分页并取得指定列
     const columnList = Object.values(this._columns);
-    const dbColumns = columnList.filter(i => !i.isVirtual).map(i => i.key);
+    const dbColumns = columnList.filter(i => !i[COLUMN_VIRTUAL]).map(i => i[COLUMN_KEY]);
     const limit = this._limit;
     const offset = this._offset || 0;
     const result = await finder.page({
@@ -122,12 +125,13 @@ export class Grid {
 
     // 处理结果行
     let data = [];
-    const formatterList = columnList.filter(i => i.formatterFunc);
+    const formatterList = columnList.filter(i => i[COLUMN_FORMATTER_CALLBACK]);
     if (formatterList.length) {
       for (const row of result.list) {
         const d = cloneDeep(row);
         for (const col of formatterList) {
-          objSet(d, col.key, col.formatterFunc(objGet(row, col.key), row, col.key));
+          const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
+          objSet(d, col[COLUMN_KEY], formatterCall(objGet(row, col[COLUMN_KEY]), row, col[COLUMN_KEY]));
         }
         data.push(d);
       }
@@ -141,7 +145,7 @@ export class Grid {
         layout: filterForm.layout,
         errors: filterForm.errorMessages(this._ctx.messageCodeResolver),
       },
-      columns: columnList.filter(i => !i.isHidden).map(i => i.exports),
+      columns: columnList.filter(i => !i[COLUMN_HIDDEN]).map(i => i.exports),
       data,
       total: result.total,
       limit,

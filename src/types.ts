@@ -21,7 +21,19 @@ export interface Finder {
 
 export type JsonWhere = { [key: string]: any | any[] | JsonWhere | JsonWhere[] };
 
-export type FormatterFunc = (value: any, row: ResultRow, key: string) => any;
+/**
+ * 结果格式化回调
+ * @param value 数据库原始值
+ * @param row 行结果
+ * @param key 列名
+ */
+export type FormatterCallback = (value: any, row: ResultRow, key: string) => any;
+
+/**
+ * 排序方法回调函数
+ * @param desc 是否为倒序，否则就是顺序
+ */
+export type SortCallback = (desc: boolean) => string[];
 
 export type ColumnAlignType = 'left' | 'center' | 'right';
 
