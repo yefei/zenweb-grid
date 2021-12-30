@@ -109,6 +109,8 @@ export class Grid {
 
     const total = await finder.count();
 
+    finder.limit(limit, offset);
+
     // 排序
     if (total && order) {
       const orderDesc = order.startsWith('-');

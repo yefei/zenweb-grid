@@ -18,6 +18,7 @@ export type ResultRow = { [key: string]: any };
 
 export interface Finder {
   whereAnd(w: JsonWhere): Finder;
+  limit(limit: number, offset: number): Finder;
   order(...columns: string[]): Finder;
   count(): Promise<number>;
   all(...columns: ColumnSelectList): Promise<ResultRow[]>;
