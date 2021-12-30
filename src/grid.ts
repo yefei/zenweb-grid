@@ -125,18 +125,19 @@ export class Grid {
 
     // 处理结果行
     let data = [];
-    const formatterList = columnList.filter(i => i[COLUMN_FORMATTER_CALLBACK]);
-    if (formatterList.length) {
-      for (const row of result.list) {
-        const d = cloneDeep(row);
-        for (const col of formatterList) {
-          const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
-          objSet(d, col[COLUMN_KEY], formatterCall(objGet(row, col[COLUMN_KEY]), row, col[COLUMN_KEY]));
+    for (const row of result.list) {
+      const d = cloneDeep(row);
+      for (const col of columnList) {
+        const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
+        let value = objGet(row, col[COLUMN_KEY]);
+        if (formatterCall) {
+          value = formatterCall(value, row, col[COLUMN_KEY]);
         }
-        data.push(d);
+        if (typeof value !== 'undefined') {
+          objSet(d, col[COLUMN_KEY], value);
+        }
       }
-    } else {
-      data = result.list;
+      data.push(d);
     }
 
     return {
