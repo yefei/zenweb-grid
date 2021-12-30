@@ -139,10 +139,12 @@ export class Grid {
     for (const row of result.list) {
       const d = {};
       for (const col of columnList) {
+        let value;
         const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
-        let value = objGet(row, col[COLUMN_KEY]);
         if (formatterCall) {
-          value = await formatterCall(value, row, col[COLUMN_KEY]);
+          value = await formatterCall(row, col[COLUMN_KEY]);
+        } else {
+          value = objGet(row, col[COLUMN_KEY]);
         }
         if (typeof value !== 'undefined') {
           objSet(d, col[COLUMN_KEY], value);
