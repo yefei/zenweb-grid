@@ -1,6 +1,6 @@
 {
   "name": "@zenweb/grid",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
