@@ -1,7 +1,7 @@
-import { ColumnAlignType, ColumnExports, FormatterCallback, SortCallback } from './types';
+import { ColumnAlignType, ColumnExports, ColumnSelectList, FormatterCallback, SortCallback } from './types';
 
 export const COLUMN_KEY = Symbol('Column#key');
-export const COLUMN_VIRTUAL = Symbol('Column#virtual');
+export const COLUMN_SELECT = Symbol('Column#select');
 export const COLUMN_FORMATTER_CALLBACK = Symbol('Column#formatter');
 export const COLUMN_EXPORTS = Symbol('Column#exports');
 export const COLUMN_HIDDEN = Symbol('Column#hidden');
@@ -10,7 +10,7 @@ export const COLUMN_SORT_CALLBACK = Symbol('Column#sortCallback');
 
 export class Column {
   [COLUMN_KEY]: string;
-  [COLUMN_VIRTUAL]: boolean = false;
+  [COLUMN_SELECT]: ColumnSelectList;
   [COLUMN_FORMATTER_CALLBACK]: FormatterCallback = null;
   [COLUMN_EXPORTS]: ColumnExports;
   [COLUMN_HIDDEN]: boolean;
@@ -63,10 +63,11 @@ export class Column {
   }
 
   /**
-   * 是否为虚拟字段，不在数据库中字段
+   * 设置需要检出的数据库字段名
+   * @param columns 如果不指定则默认使用 key 值，如果指定 null 则不检出
    */
-  virtual() {
-    this[COLUMN_VIRTUAL] = true;
+  select(...columns: ColumnSelectList) {
+    this[COLUMN_SELECT] = columns;
     return this;
   }
 

@@ -1,9 +1,10 @@
 import { Context } from 'koa';
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
-import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_VIRTUAL } from "./column";
+import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
 import { cloneDeep, get as objGet, set as objSet } from 'lodash';
+import { ColumnSelectList } from '.';
 
 const FILTER_PREFIX: string = 'filter_';
 
@@ -113,7 +114,17 @@ export class Grid {
     }
     // 分页并取得指定列
     const columnList = Object.values(this._columns);
-    const dbColumns = columnList.filter(i => !i[COLUMN_VIRTUAL]).map(i => i[COLUMN_KEY]);
+    const dbColumns: ColumnSelectList = [];
+    for (const i of columnList) {
+      if (i[COLUMN_SELECT]) {
+        if (i[COLUMN_SELECT][0] === null) {
+          continue;
+        }
+        dbColumns.push(...i[COLUMN_SELECT]);
+      } else {
+        dbColumns.push(i[COLUMN_KEY]);
+      }
+    }
     const limit = this._limit;
     const offset = this._offset || 0;
     const result = await finder.page({

@@ -1,5 +1,8 @@
 import { Fields, Layout } from "@zenweb/form";
 
+export type ColumnAs = { [key: string]: string };
+export type ColumnSelectList = (string | ColumnAs)[];
+
 export interface PageOptions {
   /** 分页条数 */
   limit: number;
@@ -16,7 +19,7 @@ export type ResultRow = { [key: string]: any };
 export interface Finder {
   whereAnd(w: JsonWhere): Finder;
   order(...columns: string[]): Finder;
-  page(page: PageOptions, ...columns: string[]): Promise<{ total: number, list: ResultRow[] }>;
+  page(page: PageOptions, ...columns: ColumnSelectList): Promise<{ total: number, list: ResultRow[] }>;
 }
 
 export type JsonWhere = { [key: string]: any | any[] | JsonWhere | JsonWhere[] };
