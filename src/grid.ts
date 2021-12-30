@@ -1,28 +1,25 @@
-import { Context } from 'koa';
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
-import { ColumnSelectList } from '.';
+import { ColumnSelectList, FilterResult, PageResult } from './types';
+import { MessageCodeResolver } from '@zenweb/messagecode';
 
 const FILTER_PREFIX: string = 'filter_';
 
 export class Grid {
-  private _ctx: Context;
   private _columns: { [key: string]: Column } = {};
   private _limit: number = 10;
   private _maxLimit: number = 100;
   private _order: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: Fields = {};
-  private _filterWheres: JsonWhere;
-  private _filterForm: Form;
   private _offset: number;
+  private _messageCodeResolver: MessageCodeResolver;
 
-  constructor(ctx: Context) {
-    this._ctx = ctx;
-    this._filterWheres = {};
+  constructor(messageCodeResolver?: MessageCodeResolver) {
+    this._messageCodeResolver = messageCodeResolver;
   }
 
   /**
@@ -40,16 +37,6 @@ export class Grid {
     this._filters[key] = new Filter(this, key, field);
     this._filterFields[FILTER_PREFIX + key] = field;
     return this._filters[key];
-  }
-
-  filterForm(data?: FormData) {
-    if (!this._filterForm) {
-      this._filterForm = new Form({ required: false });
-      this._filterForm.init({
-        fields: this._filterFields,
-      }, data);
-    }
-    return this._filterForm;
   }
 
   /**
@@ -72,100 +59,144 @@ export class Grid {
     return this;
   }
 
-  private _query() {
-    const pageForm = new Form({ required: false });
-    pageForm.init({
+  /**
+   * 查询过滤
+   */
+  private _filterQuery(finder: Finder, query?: FormData): FilterResult {
+    const form = new Form({ required: false });
+    form.init({ fields: this._filterFields }, query);
+
+    const filterWheres: JsonWhere = {};
+    for (const [key, value] of Object.entries(form.data)) {
+      Object.assign(filterWheres, this._filters[key.slice(FILTER_PREFIX.length)].whereBuilder(value));
+    }
+
+    // 过滤
+    if (Object.keys(filterWheres).length) {
+      finder.whereAnd(filterWheres);
+    }
+
+    return {
+      fields: form.fields,
+      layout: form.layout,
+      errors: form.errorMessages(this._messageCodeResolver),
+    };
+  }
+
+  /**
+   * 分页和排序
+   */
+  private async _pageQuery(finder: Finder, query?: FormData): Promise<PageResult> {
+    const form = new Form({ required: false });
+    form.init({
       fields: {
         limit: fields.int('条数').validate({ gte: 1, lte: this._maxLimit }),
         offset: fields.int('行位置').validate({ gte: 0, lte: Number.MAX_VALUE }),
         order: fields.trim('排序'),
       }
-    }, this._ctx.query);
-    // 查询数据
-    const params = pageForm.data;
-    if (params.limit) this._limit = params.limit;
-    if (params.offset) this._offset = params.offset;
+    }, query);
+
+    const params = form.data;
+    const limit = params.limit || this._limit;
+    const offset = params.offset || this._offset;
+    let order = this._order;
     if (typeof params.order === 'string') {
       const orderKey = params.order.startsWith('-') ? params.order.slice(1) : params.order;
       if (orderKey in this._columns && this._columns[orderKey][COLUMN_SORTABLE]) {
-        this._order = params.order;
+        order = params.order;
       }
     }
-    // 过滤查询
-    const filterData = this.filterForm(this._ctx.query).data;
-    for (const [key, value] of Object.entries(filterData)) {
-      Object.assign(this._filterWheres, this._filters[key.slice(FILTER_PREFIX.length)].whereBuilder(value));
-    }
-    return this;
-  }
- 
-  async fetch(finder: Finder): Promise<FetchResult> {
-    this._query();
+
+    const total = await finder.count();
+
     // 排序
-    if (this._order) {
-      const orderDesc = this._order.startsWith('-');
-      const orderKey = orderDesc ? this._order.slice(1) : this._order;
+    if (total && order) {
+      const orderDesc = order.startsWith('-');
+      const orderKey = orderDesc ? order.slice(1) : order;
       const orderCall = this._columns[orderKey][COLUMN_SORT_CALLBACK];
-      finder.order(...(orderCall ? orderCall(orderDesc) : [this._order]));
+      finder.order(...(orderCall ? orderCall(orderDesc) : [order]));
     }
-    // 过滤
-    if (Object.keys(this._filterWheres).length) {
-      finder.whereAnd(this._filterWheres);
-    }
-    // 分页并取得指定列
-    const columnList = Object.values(this._columns);
-    const dbColumns: ColumnSelectList = [];
-    for (const i of columnList) {
-      if (i[COLUMN_SELECT]) {
-        if (i[COLUMN_SELECT][0] === null) {
-          continue;
-        }
-        dbColumns.push(...i[COLUMN_SELECT]);
-      } else {
-        dbColumns.push(i[COLUMN_KEY]);
-      }
-    }
-    const limit = this._limit;
-    const offset = this._offset || 0;
-    const result = await finder.page({
-      limit,
-      offset,
-    }, ...dbColumns);
-
-    const filterForm = this.filterForm();
-
-    // 处理结果行
-    let data = [];
-    for (const row of result.list) {
-      const d = {};
-      for (const col of columnList) {
-        let value;
-        const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
-        if (formatterCall) {
-          value = await formatterCall(row, col[COLUMN_KEY]);
-        } else {
-          value = objGet(row, col[COLUMN_KEY]);
-        }
-        if (typeof value !== 'undefined') {
-          objSet(d, col[COLUMN_KEY], value);
-        }
-      }
-      data.push(d);
-    }
-
+    
     return {
-      filter: {
-        fields: filterForm.fields,
-        layout: filterForm.layout,
-        errors: filterForm.errorMessages(this._ctx.messageCodeResolver),
-      },
-      columns: columnList.filter(i => !i[COLUMN_HIDDEN]).map(i => i.exports),
-      data,
-      total: result.total,
+      total,
       limit,
       maxLimit: this._maxLimit,
       offset,
-      order: this._order,
-    };
+      order,
+    }
+  }
+
+  /**
+   * 返回结果包含的项
+   * 如果没有指定则返回全部项
+   * includes=filter,columns,page,data
+   */
+  private _includeQuery(query?: FormData): string[] {
+    const all = ['filter', 'columns' , 'page', 'data'];
+    const form = new Form({ required: false });
+    form.init({
+      fields: {
+        includes: fields.multiple('includes').choices(all),
+      }
+    }, query);
+    if (form.data.includes || form.data.includes.length > 0) {
+      return form.data.includes;
+    }
+    return all;
+  }
+
+  async fetch(finder: Finder, query?: FormData): Promise<FetchResult> {
+    const filter = this._filterQuery(finder, query);
+    const page = await this._pageQuery(finder, query);
+    const includes = this._includeQuery(query);
+    const columnList = Object.values(this._columns);
+    const result: FetchResult = {};
+
+    if (includes.includes('filter')) {
+      result.filter = filter;
+    }
+
+    if (includes.includes('columns')) {
+      result.columns = columnList.filter(i => !i[COLUMN_HIDDEN]).map(i => i.exports);
+    }
+
+    if (includes.includes('page')) {
+      result.page = page;
+    }
+
+    if (includes.includes('data')) {
+      const dbColumns: ColumnSelectList = [];
+      for (const i of columnList) {
+        if (i[COLUMN_SELECT]) {
+          if (i[COLUMN_SELECT][0] === null) {
+            continue;
+          }
+          dbColumns.push(...i[COLUMN_SELECT]);
+        } else {
+          dbColumns.push(i[COLUMN_KEY]);
+        }
+      }
+      const data = page.total ? await finder.all(...dbColumns) : [];
+      // 处理结果行
+      result.data = [];
+      for (const row of data) {
+        const d = {};
+        for (const col of columnList) {
+          let value;
+          const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
+          if (formatterCall) {
+            value = await formatterCall(row, col[COLUMN_KEY]);
+          } else {
+            value = objGet(row, col[COLUMN_KEY]);
+          }
+          if (typeof value !== 'undefined') {
+            objSet(d, col[COLUMN_KEY], value);
+          }
+        }
+        result.data.push(d);
+      }
+    }
+  
+    return result;
   }
 }

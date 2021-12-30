@@ -19,7 +19,8 @@ export type ResultRow = { [key: string]: any };
 export interface Finder {
   whereAnd(w: JsonWhere): Finder;
   order(...columns: string[]): Finder;
-  page(page: PageOptions, ...columns: ColumnSelectList): Promise<{ total: number, list: ResultRow[] }>;
+  count(): Promise<number>;
+  all(...columns: ColumnSelectList): Promise<ResultRow[]>;
 }
 
 export type JsonWhere = { [key: string]: any | any[] | JsonWhere | JsonWhere[] };
@@ -47,17 +48,23 @@ export interface ColumnExports {
   align?: ColumnAlignType;
 }
 
+export interface FilterResult {
+  fields: Fields;
+  layout: Layout[];
+  errors: { [key: string]: string };
+}
+
+export interface PageResult {
+  total: number;
+  limit: number;
+  maxLimit: number;
+  offset: number;
+  order: string;
+}
+
 export interface FetchResult {
-  filter: {
-    fields: Fields,
-    layout: Layout[],
-    errors: { [key: string]: string },
-  },
-  columns: ColumnExports[],
-  data: ResultRow[],
-  total: number,
-  limit: number,
-  maxLimit: number,
-  offset: number,
-  order: string,
+  filter?: FilterResult;
+  columns?: ColumnExports[];
+  page?: PageResult;
+  data?: ResultRow[];
 }
