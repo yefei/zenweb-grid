@@ -3,7 +3,7 @@ import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
-import { cloneDeep, get as objGet, set as objSet } from 'lodash';
+import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList } from '.';
 
 const FILTER_PREFIX: string = 'filter_';
@@ -137,7 +137,7 @@ export class Grid {
     // 处理结果行
     let data = [];
     for (const row of result.list) {
-      const d = cloneDeep(row);
+      const d = {};
       for (const col of columnList) {
         const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
         let value = objGet(row, col[COLUMN_KEY]);
