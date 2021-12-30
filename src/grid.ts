@@ -139,7 +139,7 @@ export class Grid {
         includes: fields.multiple('includes').choices(all),
       }
     }, query);
-    if (form.data.includes || form.data.includes.length > 0) {
+    if (form.data.includes && form.data.includes.length > 0) {
       return form.data.includes;
     }
     return all;
