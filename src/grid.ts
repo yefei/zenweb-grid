@@ -131,7 +131,7 @@ export class Grid {
         const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
         let value = objGet(row, col[COLUMN_KEY]);
         if (formatterCall) {
-          value = formatterCall(value, row, col[COLUMN_KEY]);
+          value = await formatterCall(value, row, col[COLUMN_KEY]);
         }
         if (typeof value !== 'undefined') {
           objSet(d, col[COLUMN_KEY], value);

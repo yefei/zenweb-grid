@@ -27,7 +27,7 @@ export type JsonWhere = { [key: string]: any | any[] | JsonWhere | JsonWhere[] }
  * @param row 行结果
  * @param key 列名
  */
-export type FormatterCallback = (value: any, row: ResultRow, key: string) => any;
+export type FormatterCallback = (value: any, row: ResultRow, key: string) => any | Promise<any>;
 
 /**
  * 排序方法回调函数
