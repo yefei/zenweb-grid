@@ -37,11 +37,12 @@ export class Column {
 
   /**
    * 设置为可排序列
-   * @param func 排序方法，如果指定则使用回调函数返回的排序规则，不指定则默认使用 key 排序
+   * @param callback 排序方法，如果指定则使用回调函数返回的排序规则，不指定则默认使用 key 作为排序字段
+   *  如果指定值为 string 类型，则使用 string 作为排序字段
    */
-  sortable(callback?: SortCallback) {
+  sortable(callback?: SortCallback | string) {
     this[COLUMN_SORTABLE] = true;
-    this[COLUMN_SORT_CALLBACK] = callback;
+    this[COLUMN_SORT_CALLBACK] = typeof callback === 'string' ? (desc => [`${desc ? '-' : ''}${callback}`]) : callback;
     return this;
   }
 
