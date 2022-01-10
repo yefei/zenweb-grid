@@ -1,4 +1,4 @@
-import { Fields, Layout } from "@zenweb/form";
+import { Fields, FormData, Layout } from "@zenweb/form";
 
 export type ColumnAs = { [key: string]: string };
 export type ColumnSelectList = (string | ColumnAs)[];
@@ -49,10 +49,9 @@ export interface ColumnExports {
   align?: ColumnAlignType;
 }
 
-export interface FilterResult {
-  fields?: Fields;
-  layout?: Layout[];
-  errors?: { [field: string]: string };
+export interface FilterForm {
+  fields: Fields;
+  layout: Layout[];
 }
 
 export interface PageResult {
@@ -64,7 +63,9 @@ export interface PageResult {
 }
 
 export interface FetchResult {
-  filter?: FilterResult;
+  filterForm?: FilterForm;
+  filterErrors?: { [field: string]: string };
+  filterData?: FormData;
   columns?: ColumnExports[];
   page?: PageResult;
   data?: ResultRow[];

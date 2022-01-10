@@ -3,7 +3,7 @@ import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SO
 import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
-import { ColumnSelectList, FilterResult, PageResult } from './types';
+import { ColumnSelectList, PageResult } from './types';
 import { Core } from "@zenweb/core";
 
 const FILTER_PREFIX: string = 'filter_';
@@ -63,7 +63,11 @@ export class Grid {
    * 查询过滤
    * @throws {FilterError}
    */
-  private _filterQuery(finder: Finder, query?: FormData): FilterResult {
+  private _filterQuery(finder: Finder, query?: FormData): Form {
+    if (!Object.keys(this._filterFields).length) {
+      return;
+    }
+
     const form = new Form({ required: false });
     form.init({ fields: this._filterFields }, query);
 
@@ -77,11 +81,7 @@ export class Grid {
       finder.whereAnd(filterWheres);
     }
 
-    return {
-      fields: form.fields,
-      layout: form.layout,
-      errors: form.valid ? undefined : form.errorMessages(this._core.messageCodeResolver),
-    };
+    return form;
   }
 
   /**
@@ -155,11 +155,17 @@ export class Grid {
     const columnList = Object.values(this._columns);
     const result: FetchResult = {};
 
-    if (includes.includes('filter')) {
-      result.filter = filter;
-    }
-    else if (filter.errors) {
-      result.filter = { errors: filter.errors };
+    if (filter) {
+      result.filterData = filter.data;
+      if (includes.includes('filter')) {
+        result.filterForm = {
+          fields: filter.fields,
+          layout: filter.layout,
+        };
+      }
+      if (!filter.valid) {
+        result.filterErrors = filter.errorMessages(this._core.messageCodeResolver);
+      }
     }
 
     if (includes.includes('columns')) {
