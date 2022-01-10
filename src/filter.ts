@@ -33,7 +33,6 @@ export class Filter {
 }
 
 export class FilterError extends ApiFail {
-  export = true;
   form: Form;
 
   constructor(core: Core, form: Form) {
