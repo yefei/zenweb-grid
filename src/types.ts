@@ -41,6 +41,8 @@ export type SortCallback = (desc: boolean) => string[];
 
 export type ColumnAlignType = 'left' | 'center' | 'right';
 
+export type ErrorDict = { [key: string]: string };
+
 export interface ColumnExports {
   key: string;
   label?: string;
@@ -50,9 +52,8 @@ export interface ColumnExports {
 }
 
 export interface FilterResult {
-  fields: Fields;
-  layout: Layout[];
-  errors: { [key: string]: string };
+  fields?: Fields;
+  layout?: Layout[];
 }
 
 export interface PageResult {

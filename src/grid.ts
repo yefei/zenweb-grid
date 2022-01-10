@@ -1,10 +1,10 @@
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
-import { Filter } from "./filter";
+import { Filter, FilterError } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, FilterResult, PageResult } from './types';
-import { MessageCodeResolver } from '@zenweb/messagecode';
+import { Core } from "@zenweb/core";
 
 const FILTER_PREFIX: string = 'filter_';
 
@@ -16,10 +16,10 @@ export class Grid {
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: Fields = {};
   private _offset: number;
-  private _messageCodeResolver: MessageCodeResolver;
+  private _core: Core;
 
-  constructor(messageCodeResolver?: MessageCodeResolver) {
-    this._messageCodeResolver = messageCodeResolver;
+  constructor(core?: Core) {
+    this._core = core;
   }
 
   /**
@@ -61,10 +61,15 @@ export class Grid {
 
   /**
    * 查询过滤
+   * @throws {FilterError}
    */
   private _filterQuery(finder: Finder, query?: FormData): FilterResult {
     const form = new Form({ required: false });
     form.init({ fields: this._filterFields }, query);
+
+    if (!form.valid) {
+      throw new FilterError(this._core, form);
+    }
 
     const filterWheres: JsonWhere = {};
     for (const [key, value] of Object.entries(form.data)) {
@@ -79,7 +84,6 @@ export class Grid {
     return {
       fields: form.fields,
       layout: form.layout,
-      errors: form.errorMessages(this._messageCodeResolver),
     };
   }
 
