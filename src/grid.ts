@@ -6,7 +6,7 @@ import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
 import { Core } from "@zenweb/core";
 
-const FILTER_PREFIX: string = 'filter_';
+const FILTER_PREFIX: string = 'f.';
 
 export class Grid {
   private _columns: { [key: string]: Column } = {};
@@ -15,7 +15,7 @@ export class Grid {
   private _order: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: Fields = {};
-  private _offset: number;
+  private _offset: number = 0;
   private _core: Core;
 
   constructor(core?: Core) {
