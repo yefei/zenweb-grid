@@ -52,6 +52,7 @@ export interface ColumnExports {
 export interface FilterResult {
   fields?: Fields;
   layout?: Layout[];
+  errors?: { [field: string]: string };
 }
 
 export interface PageResult {

@@ -1,6 +1,6 @@
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
-import { Filter, FilterError } from "./filter";
+import { Filter } from "./filter";
 import { FetchResult, Finder, JsonWhere } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, FilterResult, PageResult } from './types';
@@ -67,10 +67,6 @@ export class Grid {
     const form = new Form({ required: false });
     form.init({ fields: this._filterFields }, query);
 
-    if (!form.valid) {
-      throw new FilterError(this._core, form);
-    }
-
     const filterWheres: JsonWhere = {};
     for (const [key, value] of Object.entries(form.data)) {
       Object.assign(filterWheres, this._filters[key.slice(FILTER_PREFIX.length)].whereBuilder(value));
@@ -84,6 +80,7 @@ export class Grid {
     return {
       fields: form.fields,
       layout: form.layout,
+      errors: form.valid ? undefined : form.errorMessages(this._core.messageCodeResolver),
     };
   }
 
@@ -160,6 +157,9 @@ export class Grid {
 
     if (includes.includes('filter')) {
       result.filter = filter;
+    }
+    else if (filter.errors) {
+      result.filter = { errors: filter.errors };
     }
 
     if (includes.includes('columns')) {

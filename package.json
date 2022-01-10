@@ -28,7 +28,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",
-    "@zenweb/api": "^2.3.2",
     "@zenweb/core": "^2.3.2",
     "@zenweb/form": "^2.4.0",
     "@zenweb/messagecode": "^2.3.0",
