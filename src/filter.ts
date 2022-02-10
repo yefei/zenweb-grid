@@ -1,5 +1,5 @@
 import { Grid } from "./grid";
-import { JsonWhere } from "./types";
+import { JsonWhere } from 'sql-easy-builder';
 import { FieldType } from "@zenweb/form";
 
 type WhereFunc = (value: any) => JsonWhere;

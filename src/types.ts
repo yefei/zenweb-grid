@@ -1,4 +1,5 @@
 import { Fields, FormData, Layout } from "@zenweb/form";
+import { JsonWhere } from 'sql-easy-builder';
 
 export type ColumnAs = { [key: string]: string };
 export type ColumnSelectList = (string | ColumnAs)[];
@@ -23,8 +24,6 @@ export interface Finder {
   count(): Promise<number>;
   all(...columns: ColumnSelectList): Promise<ResultRow[]>;
 }
-
-export type JsonWhere = { [key: string]: any | any[] | JsonWhere | JsonWhere[] };
 
 /**
  * 结果格式化回调

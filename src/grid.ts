@@ -1,7 +1,8 @@
 import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
+import { JsonWhere } from 'sql-easy-builder';
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, Finder, JsonWhere } from "./types";
+import { FetchResult, Finder } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
 import { Core } from "@zenweb/core";
