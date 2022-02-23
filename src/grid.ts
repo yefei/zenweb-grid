@@ -69,7 +69,7 @@ export class Grid {
       return;
     }
 
-    const form = new Form({ required: false });
+    const form = new Form({ type: 'origin', required: false });
     form.init({ fields: this._filterFields }, query);
 
     const filterWheres: JsonWhere = {};
@@ -89,7 +89,7 @@ export class Grid {
    * 分页和排序
    */
   private async _pageQuery(finder: Finder, query?: FormData): Promise<PageResult> {
-    const form = new Form({ required: false });
+    const form = new Form({ type: 'origin', required: false });
     form.init({
       fields: {
         limit: fields.int('条数').validate({ gte: 1, lte: this._maxLimit }),
@@ -137,7 +137,7 @@ export class Grid {
    */
   private _includeQuery(query?: FormData): string[] {
     const all = ['filter', 'columns' , 'page', 'data'];
-    const form = new Form({ required: false });
+    const form = new Form({ type: 'origin', required: false });
     form.init({
       fields: {
         includes: fields.multiple('includes').choices(all),
