@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.178",
     "@zenweb/core": "^2.3.2",
-    "@zenweb/form": "^2.7.0",
+    "@zenweb/form": "^2.7.1",
     "@zenweb/messagecode": "^2.3.0",
     "@zenweb/router": "^2.3.0",
     "sql-easy-builder": "^2.2.0"
