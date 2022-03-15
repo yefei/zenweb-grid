@@ -67,7 +67,7 @@ $ npm i @zenweb/grid
     label?: '显示名',
     sortable?: true, // 是否可排序
     width?: 120, // 宽度
-    align?: 'left' | 'center' | 'right', 对齐方式
+    align?: 'left' | 'center' | 'right', // 对齐方式
   ],
   // 数据结果
   data: [
