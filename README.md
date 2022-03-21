@@ -1,8 +1,10 @@
 # zenweb-grid
  
- zenweb grid module
+服务端控制前端表格渲染
 
-## Quick start
+配套前端渲染项目: [@zenweb/grid-vue-element](https://www.npmjs.com/package/@zenweb/grid-vue-element)
+
+## 安装
 
 ```bash
 $ npm i @zenweb/grid
