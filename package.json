@@ -1,6 +1,6 @@
 {
   "name": "@zenweb/grid",
-  "version": "2.13.2",
+  "version": "3.0.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -28,11 +28,12 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",
-    "@zenweb/core": "^2.3.2",
-    "@zenweb/form": "^2.7.1",
-    "@zenweb/messagecode": "^2.3.0",
-    "@zenweb/router": "^2.3.0",
-    "sql-easy-builder": "^2.2.0"
+    "@zenweb/core": "^2.4.1",
+    "@zenweb/form": "^3.0.4",
+    "@zenweb/inject": "^3.2.0",
+    "@zenweb/messagecode": "^3.0.1",
+    "@zenweb/router": "^3.0.0",
+    "sql-easy-builder": "^2.4.1"
   },
   "dependencies": {
     "lodash": "^4.17.21"

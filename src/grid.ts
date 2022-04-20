@@ -1,4 +1,4 @@
-import { fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
+import { FieldOption, fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
@@ -6,9 +6,13 @@ import { FetchResult, Finder } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
 import { Core } from "@zenweb/core";
+import { inject } from "@zenweb/inject";
 
 const FILTER_PREFIX: string = 'f.';
 
+/**
+ * 使用依赖注入取得类实例
+ */
 export class Grid {
   private _columns: { [key: string]: Column } = {};
   private _limit: number = 10;
@@ -17,11 +21,9 @@ export class Grid {
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: Fields = {};
   private _offset: number = 0;
-  private _core: Core;
 
-  constructor(core?: Core) {
-    this._core = core;
-  }
+  @inject
+  private _core: Core;
 
   /**
    * 定义列
@@ -64,13 +66,21 @@ export class Grid {
    * 查询过滤
    * @throws {FilterError}
    */
-  private _filterQuery(finder: Finder, query?: FormData): Form {
+  private async _filterQuery(finder: Finder, query?: FormData): Promise<Form> {
     if (!Object.keys(this._filterFields).length) {
       return;
     }
 
-    const form = new Form({ type: 'any', required: false });
-    form.init({ fields: this._filterFields }, query);
+    const self = this;
+    class FilterForm extends Form {
+      defaultOption: FieldOption = { type: 'any', required: false };
+      fields() {
+        return self._filterFields
+      }
+    }
+
+    const form = await this._core.injector.getInstance(FilterForm);
+    form.validate(query);
 
     const filterWheres: JsonWhere = {};
     for (const [key, value] of Object.entries(form.data)) {
@@ -89,14 +99,20 @@ export class Grid {
    * 分页和排序
    */
   private async _pageQuery(finder: Finder, query?: FormData): Promise<PageResult> {
-    const form = new Form({ type: 'any', required: false });
-    form.init({
-      fields: {
-        limit: fields.int('条数').validate({ gte: 1, lte: this._maxLimit }),
-        offset: fields.int('行位置').validate({ gte: 0, lte: Number.MAX_VALUE }),
-        order: fields.trim('排序'),
+    const self = this;
+    class PageForm extends Form {
+      defaultOption: FieldOption = { type: 'any', required: false };
+      fields() {
+        return {
+          limit: fields.int('条数').validate({ gte: 1, lte: self._maxLimit }),
+          offset: fields.int('行位置').validate({ gte: 0, lte: Number.MAX_VALUE }),
+          order: fields.trim('排序'),
+        }
       }
-    }, query);
+    }
+
+    const form = await this._core.injector.getInstance(PageForm);
+    form.validate(query);
 
     const params = form.data;
     const limit = params.limit || this._limit;
@@ -135,14 +151,18 @@ export class Grid {
    * 如果没有指定则返回全部项
    * includes=filter,columns,page,data
    */
-  private _includeQuery(query?: FormData): string[] {
+  private async _includeQuery(query?: FormData): Promise<string[]> {
     const all = ['filter', 'columns' , 'page', 'data'];
-    const form = new Form({ type: 'any', required: false });
-    form.init({
-      fields: {
-        includes: fields.multiple('includes').choices(all),
+    class IncludeForm extends Form {
+      defaultOption: FieldOption = { type: 'any', required: false };
+      fields() {
+        return {
+          includes: fields.multiple('includes').choices(all),
+        }
       }
-    }, query);
+    }
+    const form = await this._core.injector.getInstance(IncludeForm);
+    form.validate(query);
     if (form.data.includes && form.data.includes.length > 0) {
       return form.data.includes;
     }
@@ -150,22 +170,19 @@ export class Grid {
   }
 
   async fetch(finder: Finder, query?: FormData): Promise<FetchResult> {
-    const filter = this._filterQuery(finder, query);
+    const filter = await this._filterQuery(finder, query);
     const page = await this._pageQuery(finder, query);
-    const includes = this._includeQuery(query);
+    const includes = await this._includeQuery(query);
     const columnList = Object.values(this._columns);
     const result: FetchResult = {};
 
     if (filter) {
       result.filterData = filter.data;
       if (includes.includes('filter')) {
-        result.filterForm = {
-          fields: filter.fields,
-          layout: filter.layout,
-        };
+        result.filterForm = filter.result;
       }
-      if (!filter.valid) {
-        result.filterErrors = filter.errorMessages(this._core.messageCodeResolver);
+      if (!filter.noErrors) {
+        result.filterErrors = filter.errorMessages;
       }
     }
 

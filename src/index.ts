@@ -14,6 +14,7 @@ const defaultOption: GridOption = {
 export default function setup(option?: GridOption): SetupFunction {
   option = Object.assign({}, defaultOption, option);
   return function grid(setup) {
+    setup.checkCoreProperty('injector', 'need to setup @zenweb/inject');
     setup.checkCoreProperty('messageCodeResolver', 'need to setup @zenweb/messagecode');
     setup.defineCoreProperty('gridOption', { value: option });
   }

@@ -49,8 +49,8 @@ export interface ColumnExports {
 }
 
 export interface FilterForm {
-  fields: Fields;
-  layout: Layout[];
+  fields?: Fields;
+  layout?: Layout[];
 }
 
 export interface PageResult {
