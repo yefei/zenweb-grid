@@ -29,8 +29,8 @@
   "devDependencies": {
     "@types/lodash": "^4.14.178",
     "@zenweb/core": "^2.4.1",
-    "@zenweb/form": "^3.0.4",
-    "@zenweb/inject": "^3.2.0",
+    "@zenweb/form": "^3.0.6",
+    "@zenweb/inject": "^3.4.0",
     "@zenweb/messagecode": "^3.0.1",
     "@zenweb/router": "^3.0.0",
     "sql-easy-builder": "^2.4.1"

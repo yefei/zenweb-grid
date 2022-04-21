@@ -181,7 +181,7 @@ export class Grid {
       if (includes.includes('filter')) {
         result.filterForm = filter.result;
       }
-      if (!filter.noErrors) {
+      if (filter.hasErrors) {
         result.filterErrors = filter.errorMessages;
       }
     }
