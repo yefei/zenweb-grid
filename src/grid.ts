@@ -6,7 +6,7 @@ import { FetchResult, Finder } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
 import { Core } from "@zenweb/core";
-import { inject } from "@zenweb/inject";
+import { Context, inject } from "@zenweb/inject";
 
 const FILTER_PREFIX: string = 'f.';
 
@@ -24,6 +24,9 @@ export class Grid {
 
   @inject
   private _core: Core;
+
+  @inject
+  private _ctx: Context;
 
   /**
    * 定义列
@@ -80,7 +83,7 @@ export class Grid {
     }
 
     const form = await this._core.injector.getInstance(FilterForm);
-    form.validate(query);
+    query && form.validate(query);
 
     const filterWheres: JsonWhere = {};
     for (const [key, value] of Object.entries(form.data)) {
@@ -112,7 +115,7 @@ export class Grid {
     }
 
     const form = await this._core.injector.getInstance(PageForm);
-    form.validate(query);
+    query && form.validate(query);
 
     const params = form.data;
     const limit = params.limit || this._limit;
@@ -162,7 +165,7 @@ export class Grid {
       }
     }
     const form = await this._core.injector.getInstance(IncludeForm);
-    form.validate(query);
+    query && form.validate(query);
     if (form.data.includes && form.data.includes.length > 0) {
       return form.data.includes;
     }
@@ -170,6 +173,9 @@ export class Grid {
   }
 
   async fetch(finder: Finder, query?: FormData): Promise<FetchResult> {
+    if (query === undefined && this._ctx?.query) {
+      query = this._ctx.query;
+    }
     const filter = await this._filterQuery(finder, query);
     const page = await this._pageQuery(finder, query);
     const includes = await this._includeQuery(query);
