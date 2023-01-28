@@ -1,6 +1,6 @@
 {
   "name": "@zenweb/grid",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -33,7 +33,8 @@
     "@zenweb/inject": "^3.7.0",
     "@zenweb/messagecode": "^3.0.1",
     "@zenweb/router": "^3.0.0",
-    "sql-easy-builder": "^2.7.0"
+    "sql-easy-builder": "^2.7.0",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
     "lodash": "^4.17.21"
