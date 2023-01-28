@@ -28,12 +28,12 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",
-    "@zenweb/core": "^2.4.1",
-    "@zenweb/form": "^3.0.8",
-    "@zenweb/inject": "^3.4.0",
+    "@zenweb/core": "^2.6.0",
+    "@zenweb/form": "^3.5.0",
+    "@zenweb/inject": "^3.7.0",
     "@zenweb/messagecode": "^3.0.1",
     "@zenweb/router": "^3.0.0",
-    "sql-easy-builder": "^2.4.1"
+    "sql-easy-builder": "^2.7.0"
   },
   "dependencies": {
     "lodash": "^4.17.21"

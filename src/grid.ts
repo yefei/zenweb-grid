@@ -5,8 +5,8 @@ import { Filter } from "./filter";
 import { FetchResult, Finder } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
-import { Core } from "@zenweb/core";
-import { Context, inject } from "@zenweb/inject";
+import { Context, Core } from "@zenweb/core";
+import { inject } from "@zenweb/inject";
 
 const FILTER_PREFIX: string = 'f.';
 
@@ -172,6 +172,12 @@ export class Grid {
     return all;
   }
 
+  /**
+   * 取得数据
+   * @param finder 数据获取器
+   * @param query 查询规则，如果不指定则默认使用 ctx.query
+   * @returns 数据和表格设置项
+   */
   async fetch(finder: Finder, query?: FormData): Promise<FetchResult> {
     if (query === undefined && this._ctx?.query) {
       query = this._ctx.query;
