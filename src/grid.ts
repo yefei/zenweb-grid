@@ -83,7 +83,7 @@ export class Grid {
     }
 
     const form = await this._core.injector.getInstance(FilterForm);
-    query && form.validate(query);
+    query && await form.validate(query);
 
     const filterWheres: JsonWhere = {};
     for (const [key, value] of Object.entries(form.data)) {
@@ -115,7 +115,7 @@ export class Grid {
     }
 
     const form = await this._core.injector.getInstance(PageForm);
-    query && form.validate(query);
+    query && await form.validate(query);
 
     const params = form.data;
     const limit = params.limit || this._limit;
@@ -165,7 +165,7 @@ export class Grid {
       }
     }
     const form = await this._core.injector.getInstance(IncludeForm);
-    query && form.validate(query);
+    query && await form.validate(query);
     if (form.data.includes && form.data.includes.length > 0) {
       return form.data.includes;
     }
