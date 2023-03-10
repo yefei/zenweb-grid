@@ -17,16 +17,13 @@ export class Grid {
   private _columns: { [key: string]: Column } = {};
   private _limit: number = 10;
   private _maxLimit: number = 100;
-  private _order: string;
+  private _order?: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: Fields = {};
   private _offset: number = 0;
 
-  @inject
-  private _core: Core;
-
-  @inject
-  private _ctx: Context;
+  @inject private _core!: Core;
+  @inject private _ctx!: Context;
 
   /**
    * 定义列
@@ -69,7 +66,7 @@ export class Grid {
    * 查询过滤
    * @throws {FilterError}
    */
-  private async _filterQuery(finder: Finder, query?: FormData): Promise<Form> {
+  private async _filterQuery(finder: Finder, query?: FormData): Promise<Form | undefined> {
     if (!Object.keys(this._filterFields).length) {
       return;
     }

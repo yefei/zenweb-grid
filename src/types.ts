@@ -58,7 +58,7 @@ export interface PageResult {
   limit: number;
   maxLimit: number;
   offset: number;
-  order: string;
+  order?: string;
 }
 
 export interface FetchResult {

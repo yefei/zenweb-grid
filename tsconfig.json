@@ -8,13 +8,11 @@
     ],
     "module": "commonjs",
     "strict": true,
-    "strictNullChecks": false,
     "declaration": true,
     "outDir": "./dist"
   },
   "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
+    "node_modules"
   ],
   "include": [
     "src/**/*"

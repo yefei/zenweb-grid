@@ -10,12 +10,12 @@ export const COLUMN_SORT_CALLBACK = Symbol('Column#sortCallback');
 
 export class Column {
   [COLUMN_KEY]: string;
-  [COLUMN_SELECT]: ColumnSelectList;
-  [COLUMN_FORMATTER_CALLBACK]: FormatterCallback = null;
+  [COLUMN_SELECT]?: ColumnSelectList;
+  [COLUMN_FORMATTER_CALLBACK]?: FormatterCallback;
   [COLUMN_EXPORTS]: ColumnExports;
-  [COLUMN_HIDDEN]: boolean;
-  [COLUMN_SORTABLE]: boolean;
-  [COLUMN_SORT_CALLBACK]: SortCallback;
+  [COLUMN_HIDDEN]?: boolean;
+  [COLUMN_SORTABLE]?: boolean;
+  [COLUMN_SORT_CALLBACK]?: SortCallback;
 
   constructor(key: string) {
     this[COLUMN_KEY] = key;

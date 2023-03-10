@@ -8,13 +8,12 @@ export class Filter {
   private _grid: Grid;
   private _key: string;
   private _field: FieldType;
-  private _whereFunc: WhereFunc;
+  private _whereFunc?: WhereFunc;
 
   constructor(grid: Grid, key: string, field: FieldType) {
     this._grid = grid;
     this._key = key;
     this._field = field;
-    this._whereFunc = null;
   }
 
   where(func: WhereFunc) {
