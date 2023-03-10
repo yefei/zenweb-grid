@@ -5,7 +5,7 @@ import { Filter } from "./filter";
 import { FetchResult, Finder } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
-import { Context, Core } from "@zenweb/core";
+import { Context } from "@zenweb/core";
 import { inject } from "@zenweb/inject";
 
 const FILTER_PREFIX: string = 'f.';
@@ -22,7 +22,6 @@ export class Grid {
   private _filterFields: Fields = {};
   private _offset: number = 0;
 
-  @inject private _core!: Core;
   @inject private _ctx!: Context;
 
   /**
@@ -79,7 +78,7 @@ export class Grid {
       }
     }
 
-    const form = await this._core.injector.getInstance(FilterForm);
+    const form = await this._ctx.injector.getInstance(FilterForm);
     query && await form.validate(query);
 
     const filterWheres: JsonWhere = {};
@@ -111,7 +110,7 @@ export class Grid {
       }
     }
 
-    const form = await this._core.injector.getInstance(PageForm);
+    const form = await this._ctx.injector.getInstance(PageForm);
     query && await form.validate(query);
 
     const params = form.data;
@@ -161,7 +160,7 @@ export class Grid {
         }
       }
     }
-    const form = await this._core.injector.getInstance(IncludeForm);
+    const form = await this._ctx.injector.getInstance(IncludeForm);
     query && await form.validate(query);
     if (form.data.includes && form.data.includes.length > 0) {
       return form.data.includes;

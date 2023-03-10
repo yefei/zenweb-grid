@@ -102,5 +102,8 @@ $ npm i @zenweb/grid
 
 ## Changelog
 
+### 3.1.1
+- fix: inject 作用域错误
+
 ### 3.1.0
 - 更新兼容 zenweb@3.11.0
