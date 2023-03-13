@@ -99,11 +99,3 @@ $ npm i @zenweb/grid
 | DateRange | 日期范围选择器 ｜
 | Date ｜ 日期选择器 |
 | Cascader | 级连选择器 |
-
-## Changelog
-
-### 3.1.1
-- fix: inject 作用域错误
-
-### 3.1.0
-- 更新兼容 zenweb@3.11.0

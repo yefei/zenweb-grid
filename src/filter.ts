@@ -2,7 +2,7 @@ import { Grid } from "./grid";
 import { JsonWhere } from 'sql-easy-builder';
 import { FieldType } from "@zenweb/form";
 
-type WhereFunc = (value: any) => JsonWhere;
+type WhereFunc = (value: any) => JsonWhere | undefined;
 
 export class Filter {
   private _grid: Grid;
@@ -21,7 +21,7 @@ export class Filter {
     return this;
   }
 
-  whereBuilder(value: any): JsonWhere {
+  whereBuilder(value: any): JsonWhere | undefined {
     if (this._whereFunc) {
       return this._whereFunc.call(this, value);
     }
