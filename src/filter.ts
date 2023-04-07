@@ -1,19 +1,11 @@
-import { Grid } from "./grid";
 import { JsonWhere } from 'sql-easy-builder';
-import { FieldType } from "@zenweb/form";
 
 type WhereFunc = (value: any) => JsonWhere | undefined;
 
 export class Filter {
-  private _grid: Grid;
-  private _key: string;
-  private _field: FieldType;
   private _whereFunc?: WhereFunc;
 
-  constructor(grid: Grid, key: string, field: FieldType) {
-    this._grid = grid;
-    this._key = key;
-    this._field = field;
+  constructor(private _key: string) {
   }
 
   where(func: WhereFunc) {

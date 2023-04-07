@@ -20,20 +20,14 @@
     "grid"
   ],
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yefei/zenweb-grid.git"
-  },
-  "bugs": {
-    "url": "https://github.com/yefei/zenweb-grid/issues"
-  },
+  "homepage": "https://zenweb.node.ltd",
   "devDependencies": {
     "@types/lodash": "^4.14.178",
-    "@zenweb/form": "^3.7.0",
+    "@zenweb/form": "^4.1.0",
     "rimraf": "^4.3.1",
     "sql-easy-builder": "^2.8.0",
-    "typescript": "^4.9.5",
-    "zenweb": "^3.11.0"
+    "typescript": "^5.0.3",
+    "zenweb": "^3.20.0"
   },
   "dependencies": {
     "lodash": "^4.17.21"

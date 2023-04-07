@@ -1,4 +1,4 @@
-import { Fields, FormData, Layout } from "@zenweb/form";
+import { FormFields, FormLayout } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
 
 export type ColumnAs = { [key: string]: string };
@@ -49,8 +49,8 @@ export interface ColumnExports {
 }
 
 export interface FilterForm {
-  fields?: Fields;
-  layout?: Layout[];
+  fields?: FormFields;
+  layout?: FormLayout[];
 }
 
 export interface PageResult {
@@ -64,7 +64,7 @@ export interface PageResult {
 export interface FetchResult {
   filterForm?: FilterForm;
   filterErrors?: { [field: string]: string };
-  filterData?: FormData;
+  filterData?: any;
   columns?: ColumnExports[];
   page?: PageResult;
   data?: ResultRow[];

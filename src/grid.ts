@@ -1,4 +1,5 @@
-import { FieldOption, fields, Fields, FieldType, Form, FormData } from "@zenweb/form";
+import { QueryHelper } from '@zenweb/helper';
+import { FieldOption, fields, Fields, FieldType, Form } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
@@ -36,7 +37,7 @@ export class Grid {
   }
 
   filter(key: string, field: FieldType) {
-    this._filters[key] = new Filter(this, key, field);
+    this._filters[key] = new Filter(key);
     this._filterFields[FILTER_PREFIX + key] = field;
     return this._filters[key];
   }
@@ -97,36 +98,24 @@ export class Grid {
   /**
    * 分页和排序
    */
-  private async _pageQuery(finder: Finder, query?: FormData): Promise<PageResult> {
-    const self = this;
-    class PageForm extends Form {
-      defaultOption: FieldOption = { type: 'any', required: false };
-      fields() {
-        return {
-          limit: fields.int('条数').validate({ gte: 1, lte: self._maxLimit }),
-          offset: fields.int('行位置').validate({ gte: 0, lte: Number.MAX_VALUE }),
-          order: fields.trim('排序'),
-        }
-      }
-    }
-
-    const form = await this._ctx.injector.getInstance(PageForm);
-    query && await form.validate(query);
-
-    const params = form.data;
-    const limit = params.limit || this._limit;
-    const offset = params.offset || this._offset;
-    let order = this._order;
-    if (typeof params.order === 'string') {
-      const orderKey = params.order.startsWith('-') ? params.order.slice(1) : params.order;
-      if (orderKey in this._columns && this._columns[orderKey][COLUMN_SORTABLE]) {
-        order = params.order;
-      }
-    }
+  private async _pageQuery(finder: Finder, query?: any): Promise<PageResult> {
+    const qh = await this._ctx.injector.getInstance(QueryHelper);
+    const page = qh.page({
+      input: query,
+      maxOrder: 1,
+    });
+    const queryOrder = page.order ? page.order[0] : undefined;
 
     const total = await finder.count();
+    finder.limit(page.limit, page.offset);
 
-    finder.limit(limit, offset);
+    let order = this._order;
+    if (queryOrder) {
+      const orderKey = queryOrder.startsWith('-') ? queryOrder.slice(1) : queryOrder;
+      if (orderKey in this._columns && this._columns[orderKey][COLUMN_SORTABLE]) {
+        order = queryOrder;
+      }
+    }
 
     // 排序
     if (total && order) {
@@ -135,12 +124,12 @@ export class Grid {
       const orderCall = this._columns[orderKey][COLUMN_SORT_CALLBACK];
       finder.order(...(orderCall ? orderCall(orderDesc) : [order]));
     }
-    
+
     return {
       total,
-      limit,
+      limit: page.limit,
       maxLimit: this._maxLimit,
-      offset,
+      offset: page.offset,
       order,
     }
   }
@@ -150,7 +139,7 @@ export class Grid {
    * 如果没有指定则返回全部项
    * includes=filter,columns,page,data
    */
-  private async _includeQuery(query?: FormData): Promise<string[]> {
+  private async _includeQuery(query?: any): Promise<string[]> {
     const all = ['filter', 'columns' , 'page', 'data'];
     class IncludeForm extends Form {
       defaultOption: FieldOption = { type: 'any', required: false };
@@ -174,7 +163,7 @@ export class Grid {
    * @param query 查询规则，如果不指定则默认使用 ctx.query
    * @returns 数据和表格设置项
    */
-  async fetch(finder: Finder, query?: FormData): Promise<FetchResult> {
+  async fetch(finder: Finder, query?: any): Promise<FetchResult> {
     if (query === undefined && this._ctx?.query) {
       query = this._ctx.query;
     }
