@@ -1,6 +1,12 @@
+import * as path from 'path';
 import { SetupFunction } from '@zenweb/core';
-export { Grid } from './grid';
+export { Grid, GridBase } from './grid';
 export * from './types';
+
+/**
+ * grid html template library
+ */
+export const gridTemplate = path.join(__dirname, '..', 'template');
 
 /**
  * 安装

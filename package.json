@@ -1,15 +1,18 @@
 {
   "name": "@zenweb/grid",
-  "version": "3.1.2",
+  "version": "4.0.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "template"
   ],
   "scripts": {
     "build": "rimraf dist && tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "dbgen": "cd example && zenorm-generate .dbgen.json",
+    "dev": "cd example && cross-env DEBUG=* NODE_ENV=development ts-node app"
   },
   "author": {
     "name": "YeFei",
@@ -23,11 +26,20 @@
   "homepage": "https://zenweb.node.ltd",
   "devDependencies": {
     "@types/lodash": "^4.14.178",
-    "@zenweb/form": "^4.1.0",
+    "@zenorm/generate": "^1.4.0",
+    "@zenorm/generate-mysql": "^1.2.0",
+    "@zenweb/form": "^4.3.2",
+    "@zenweb/mysql": "^3.5.2",
+    "@zenweb/template": "^3.2.0",
+    "@zenweb/template-nunjucks": "^3.0.0",
+    "cross-env": "^7.0.3",
+    "moment": "^2.29.4",
     "rimraf": "^4.3.1",
     "sql-easy-builder": "^2.8.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.0.3",
-    "zenweb": "^3.20.0"
+    "zenorm": "^3.29.0",
+    "zenweb": "^3.21.3"
   },
   "dependencies": {
     "lodash": "^4.17.21"

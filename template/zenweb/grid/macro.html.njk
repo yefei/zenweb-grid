@@ -1,0 +1,188 @@
+{% from "zenweb/form/macro.html.njk" import formFields -%}
+
+{# query 参数更新 #}
+{% macro queryParams(query, setkey, setvalue) %}
+  {%- for k, v in query|dictsort -%}
+    {%- if setkey != k -%}
+      {# 值是否为数组 #}
+      {%- if not v.trim -%}
+        {%- for i in v -%}
+          {{k|urlencode}}={{i|string|urlencode}}
+          {%- if not loop.last %}&{% endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {{k|urlencode}}={{v|string|urlencode}}
+      {%- endif -%}
+      {%- if not loop.last or setvalue %}&{% endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if setvalue -%}
+    {{setkey|urlencode}}={{setvalue|string|urlencode}}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro gridStyle() %}
+<style>
+.zengrid {
+  display: flex;
+  gap: 1rem;
+}
+
+.zengrid-filter {
+  flex-basis: 200px;
+  background-color: #eee;
+  padding: 0.5rem;
+}
+.zengrid-filter form {
+  margin: 0;
+}
+.zengrid-filter-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.zengrid-data {
+  flex-basis: 100%;
+}
+
+.zengrid-table {
+  border: 1px solid #AAA;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+.zengrid-table td,
+.zengrid-table th {
+  text-align: left;
+  padding: 0.25rem 0.5rem;
+}
+.zengrid-table thead {
+  background-color: #eee;
+}
+.zengrid-table tbody tr td {
+  border-bottom: 1px solid #f0f0f0;
+}
+.zengrid-table tbody tr:last-child td {
+  border-bottom-width: 0;
+}
+.zengrid-table tbody tr:hover {
+  background-color: #eee;
+}
+.zengrid-table tbody tr td.zengrid-table-empty {
+  text-align: center;
+  padding: 2rem 0.5rem;
+  color: #999;
+}
+
+.zengrid-page {
+  display: flex;
+  padding: 0.5rem;
+  justify-content: space-between;
+}
+.zengrid-page-current {
+  margin: 0 10px;
+}
+</style>
+{% endmacro %}
+
+{% macro gridScript(allow_external=true) %}
+{% endmacro %}
+
+{% macro gridTable(grid) -%}
+  <table class="zengrid-table">
+    <thead>
+      <tr>
+      {% for c in grid.columns -%}
+        <th{% if c.width %} width="{{c.width}}"{% endif %}>
+          {% if c.sortable %}
+            {% if grid.page.order == '-' + c.key %}
+              <a href="?{{queryParams(grid.query, 'order', c.key)}}">{{c.label}} ▼</a>
+            {% elif grid.page.order == c.key %}
+              <a href="?{{queryParams(grid.query, 'order')}}">{{c.label}} ▲</a>
+            {% else %}
+              <a href="?{{queryParams(grid.query, 'order', '-' + c.key)}}">{{c.label}}</a>
+            {% endif %}
+          {% else %}
+            {{c.label}}
+          {% endif %}
+        </th>
+      {% endfor -%}
+      </tr>
+    </thead>
+    <tbody>
+    {% for i in grid.data -%}
+      <tr>
+        {%- for c in grid.columns -%}
+        <td>{{i[c.key]}}</td>
+        {%- endfor -%}
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="{{grid.columns|length}}" class="zengrid-table-empty">- 无结果 -</td>
+      </tr>
+    {% endfor -%}
+    </tbody>
+  </table>
+{%- endmacro %}
+
+{% macro gridPage(grid) -%}
+  {%- set pages = (grid.page.total / grid.page.limit)|round -%}
+  {%- set current = ((grid.page.offset + grid.page.limit) / grid.page.limit)|int -%}
+  <div class="zengrid-page">
+    <div class="zengrid-page-limit">
+      {% for i in [10, 20, 50, 100] -%}
+        {% if i == grid.page.limit -%}
+          <b>{{i}}</b>
+        {% elseif i <= grid.page.maxLimit -%}
+          <a href="?{{queryParams(grid.query, 'limit', i)}}">{{i}}</a>
+        {% endif %}
+       {%- endfor %} 条/页
+    </div>
+    <div class="zengrid-page-total">共 {{grid.page.total}} 条</div>
+    <div class="zengrid-page-operate">
+      {%- if current <= 1 -%}
+        <span>第一页</span>
+        <span>上一页</span>
+      {%- else -%}
+        <a href="?{{queryParams(grid.query, 'offset', 0)}}">第一页</a>
+        <a href="?{{queryParams(grid.query, 'offset', grid.page.offset - grid.page.limit)}}">上一页</a>
+      {%- endif -%}
+      <span class="zengrid-page-current">{{current}} / {{pages}} 页</span>
+      {%- if current >= pages -%}
+        <span>下一页</span>
+        <span>最后页</span>
+      {%- else -%}
+        <a href="?{{queryParams(grid.query, 'offset', grid.page.offset + grid.page.limit)}}">下一页</a>
+        <a href="?{{queryParams(grid.query, 'offset', (pages-1) * grid.page.limit)}}">最后页</a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endmacro %}
+
+{% macro gridFilter(grid) %}
+  <div class="zengrid-filter">
+    <form>
+      <input type="hidden" name="limit" value="{{grid.page.limit}}" />
+      {{formFields(grid.filterForm, grid.filterInput)}}
+      <div class="zengrid-filter-footer">
+        {% if grid.filterData %}
+          <a href="?limit={{grid.page.limit}}">取消过滤</a>
+        {% endif %}
+        <button type="submit">过滤</button>
+      </div>
+    </form>
+  </div>
+{% endmacro %}
+
+{% macro gridRender(grid) -%}
+  <div class="zengrid">
+    {%- if grid.filterForm %}
+      {{gridFilter(grid)}}
+    {% endif -%}
+    <div class="zengrid-data">
+      {{gridTable(grid)}}
+      {{gridPage(grid)}}
+    </div>
+  </div>
+{%- endmacro %}

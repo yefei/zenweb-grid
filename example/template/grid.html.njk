@@ -1,0 +1,16 @@
+{% from "zenweb/form/macro.html.njk" import formStyle, formScript -%}
+{% from "zenweb/grid/macro.html.njk" import gridRender, gridStyle, gridScript -%}
+
+<html>
+  <head>
+    <title>zenweb grid demo</title>
+    {{formStyle()}}
+    {{gridStyle()}}
+  </head>
+  <body>
+    {{gridRender(grid)}}
+
+    {{formScript()}}
+    {{gridScript()}}
+  </body>
+</html>

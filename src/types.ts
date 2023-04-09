@@ -51,6 +51,7 @@ export interface ColumnExports {
 export interface FilterForm {
   fields?: FormFields;
   layout?: FormLayout[];
+  errors?: { [field: string]: string };
 }
 
 export interface PageResult {
@@ -63,9 +64,10 @@ export interface PageResult {
 
 export interface FetchResult {
   filterForm?: FilterForm;
-  filterErrors?: { [field: string]: string };
   filterData?: any;
+  filterInput?: any;
   columns?: ColumnExports[];
   page?: PageResult;
   data?: ResultRow[];
+  query?: any;
 }

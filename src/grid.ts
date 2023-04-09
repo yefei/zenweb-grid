@@ -1,15 +1,26 @@
-import { QueryHelper } from '@zenweb/helper';
-import { FieldOption, fields, Fields, FieldType, Form } from "@zenweb/form";
+import { TypeCastHelper } from '@zenweb/helper';
+import { FormFields, FormBase, FieldOption } from "@zenweb/form";
+import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, Finder } from "./types";
+import { FetchResult, FilterForm, Finder } from "./types";
 import { get as objGet, set as objSet } from 'lodash';
 import { ColumnSelectList, PageResult } from './types';
 import { Context } from "@zenweb/core";
-import { inject } from "@zenweb/inject";
+import { inject, init } from "@zenweb/inject";
 
-const FILTER_PREFIX: string = 'f.';
+const FILTER_PREFIX: string = 'f_';
+
+enum OutType {
+  FILTER = 'filter',
+  COLUMNS = 'columns',
+  PAGE = 'page',
+  DATA = 'data',
+  QUERY = 'query',
+};
+
+const OutTypeValues = Object.values(OutType);
 
 /**
  * 使用依赖注入取得类实例
@@ -20,10 +31,10 @@ export class Grid {
   private _maxLimit: number = 100;
   private _order?: string;
   private _filters: { [key: string]: Filter } = {};
-  private _filterFields: Fields = {};
-  private _offset: number = 0;
+  private _filterFields: FormFields = {};
 
-  @inject private _ctx!: Context;
+  @inject protected ctx!: Context;
+  @inject protected cast!: TypeCastHelper;
 
   /**
    * 定义列
@@ -36,7 +47,7 @@ export class Grid {
     return this._columns[key];
   }
 
-  filter(key: string, field: FieldType) {
+  filter(key: string, field: FieldOption | TypeKeys) {
     this._filters[key] = new Filter(key);
     this._filterFields[FILTER_PREFIX + key] = field;
     return this._filters[key];
@@ -66,20 +77,13 @@ export class Grid {
    * 查询过滤
    * @throws {FilterError}
    */
-  private async _filterQuery(finder: Finder, query?: FormData): Promise<Form | undefined> {
+  private async _filterQuery(finder: Finder, query?: any) {
     if (!Object.keys(this._filterFields).length) {
       return;
     }
 
-    const self = this;
-    class FilterForm extends Form {
-      defaultOption: FieldOption = { type: 'any', required: false };
-      fields() {
-        return self._filterFields
-      }
-    }
-
-    const form = await this._ctx.injector.getInstance(FilterForm);
+    class FilterForm extends FormBase(this._filterFields) {}
+    const form = await this.ctx.injector.getInstance(FilterForm);
     query && await form.validate(query);
 
     const filterWheres: JsonWhere = {};
@@ -98,24 +102,16 @@ export class Grid {
   /**
    * 分页和排序
    */
-  private async _pageQuery(finder: Finder, query?: any): Promise<PageResult> {
-    const qh = await this._ctx.injector.getInstance(QueryHelper);
-    const page = qh.page({
-      input: query,
+  private async _pageQuery(finder: Finder, query?: any) {
+    const page = this.cast.page(query, {
       maxOrder: 1,
+      defaultLimit: this._limit,
+      maxLimit: this._maxLimit,
+      allowOrder: Object.keys(this._columns).filter(c => this._columns[c][COLUMN_SORTABLE]),
     });
-    const queryOrder = page.order ? page.order[0] : undefined;
 
+    const order = page.order ? page.order[0] : this._order;
     const total = await finder.count();
-    finder.limit(page.limit, page.offset);
-
-    let order = this._order;
-    if (queryOrder) {
-      const orderKey = queryOrder.startsWith('-') ? queryOrder.slice(1) : queryOrder;
-      if (orderKey in this._columns && this._columns[orderKey][COLUMN_SORTABLE]) {
-        order = queryOrder;
-      }
-    }
 
     // 排序
     if (total && order) {
@@ -125,13 +121,15 @@ export class Grid {
       finder.order(...(orderCall ? orderCall(orderDesc) : [order]));
     }
 
+    finder.limit(page.limit, page.offset);
+
     return {
       total,
       limit: page.limit,
       maxLimit: this._maxLimit,
       offset: page.offset,
       order,
-    }
+    } as PageResult;
   }
 
   /**
@@ -139,22 +137,19 @@ export class Grid {
    * 如果没有指定则返回全部项
    * includes=filter,columns,page,data
    */
-  private async _includeQuery(query?: any): Promise<string[]> {
-    const all = ['filter', 'columns' , 'page', 'data'];
-    class IncludeForm extends Form {
-      defaultOption: FieldOption = { type: 'any', required: false };
-      fields() {
-        return {
-          includes: fields.multiple('includes').choices(all),
+  private _includeQuery(query?: any) {
+    const { includes } = this.cast.pick(query, {
+      includes: {
+        type: 'trim1[]',
+        validate: {
+          in: OutTypeValues,
         }
-      }
+      },
+    });
+    if (includes && includes.length > 0) {
+      return includes as OutType[];
     }
-    const form = await this._ctx.injector.getInstance(IncludeForm);
-    query && await form.validate(query);
-    if (form.data.includes && form.data.includes.length > 0) {
-      return form.data.includes;
-    }
-    return all;
+    return OutTypeValues;
   }
 
   /**
@@ -163,35 +158,38 @@ export class Grid {
    * @param query 查询规则，如果不指定则默认使用 ctx.query
    * @returns 数据和表格设置项
    */
-  async fetch(finder: Finder, query?: any): Promise<FetchResult> {
-    if (query === undefined && this._ctx?.query) {
-      query = this._ctx.query;
+  async fetch(finder: Finder, query?: any) {
+    if (query === undefined) {
+      query = this.ctx.query;
     }
     const filter = await this._filterQuery(finder, query);
     const page = await this._pageQuery(finder, query);
-    const includes = await this._includeQuery(query);
+    const includes = this._includeQuery(query);
     const columnList = Object.values(this._columns);
     const result: FetchResult = {};
 
-    if (filter) {
-      result.filterData = filter.data;
-      if (includes.includes('filter')) {
-        result.filterForm = filter.result;
-      }
-      if (filter.hasErrors) {
-        result.filterErrors = filter.errorMessages;
-      }
+    if (includes.includes(OutType.QUERY)) {
+      result.query = query;
     }
 
-    if (includes.includes('columns')) {
+    if (filter && includes.includes(OutType.FILTER)) {
+      result.filterData = Object.values(filter.data).length ? filter.data : undefined;
+      result.filterInput = {};
+      for (const k of Object.keys(this._filterFields)) {
+        result.filterInput[k] = query[k];
+      }
+      result.filterForm = <FilterForm> filter.result;
+    }
+
+    if (includes.includes(OutType.COLUMNS)) {
       result.columns = columnList.filter(i => !i[COLUMN_HIDDEN]).map(i => i.exports);
     }
 
-    if (includes.includes('page')) {
+    if (includes.includes(OutType.PAGE)) {
       result.page = page;
     }
 
-    if (includes.includes('data')) {
+    if (includes.includes(OutType.DATA)) {
       const dbColumns: ColumnSelectList = [];
       for (const i of columnList) {
         if (i[COLUMN_SELECT]) {
@@ -225,5 +223,13 @@ export class Grid {
     }
   
     return result;
+  }
+}
+
+export abstract class GridBase extends Grid {
+  abstract setup(): void | Promise<void>;
+
+  @init [Symbol()]() {
+    return this.setup();
   }
 }

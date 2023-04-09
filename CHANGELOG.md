@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.0
+- 重构，内置服务端 html 渲染模板
+
 ## 3.1.2
 - update: WhereFunc 允许返回 undefined
 
