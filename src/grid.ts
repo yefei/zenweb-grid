@@ -27,8 +27,8 @@ const OutTypeValues = Object.values(OutType);
  */
 export class Grid {
   private _columns: { [key: string]: Column } = {};
-  private _limit: number = 10;
-  private _maxLimit: number = 100;
+  private _limit?: number;
+  private _maxLimit?: number;
   private _order?: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: FormFields = {};
@@ -55,12 +55,13 @@ export class Grid {
 
   /**
    * 默认条数限制
+   * - 不设置默认使用 Helper.page 选项的默认值
    * @param defaultLimit 默认条数
    * @param maxLimit 最大条数
    */
-  setLimit(limit: number, maxLimit?: number) {
+  setLimit(limit?: number, maxLimit?: number) {
     this._limit = limit;
-    this._maxLimit = maxLimit || 100;
+    this._maxLimit = maxLimit;
     return this;
   }
 

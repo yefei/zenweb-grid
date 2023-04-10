@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.1
+- pageLimit 参数默认不设置使用全局 page 参数
+
 ## 4.0.0
 - 重构，内置服务端 html 渲染模板
 
