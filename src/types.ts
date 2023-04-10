@@ -1,20 +1,9 @@
 import { FormFields, FormLayout } from "@zenweb/form";
+import { PageResultWithOption } from "@zenweb/helper";
 import { JsonWhere } from 'sql-easy-builder';
 
 export type ColumnAs = { [key: string]: string };
 export type ColumnSelectList = (string | ColumnAs)[];
-
-export interface PageOptions {
-  /** 分页条数 */
-  limit: number;
-
-  /** 分页位置 */
-  offset?: number;
-
-  /** 排序 */
-  order?: string | string[];
-}
-
 export type ResultRow = { [key: string]: any };
 
 export interface Finder {
@@ -54,12 +43,16 @@ export interface FilterForm {
   errors?: { [field: string]: string };
 }
 
-export interface PageResult {
+export interface PageResult extends Omit<PageResultWithOption, 'order'> {
+  /**
+   * 结果总数
+   */
   total: number;
-  limit: number;
-  maxLimit: number;
-  offset: number;
-  order?: string;
+
+  /**
+   * 排序列名
+   */
+  order: string;
 }
 
 export interface FetchResult {

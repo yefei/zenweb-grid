@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2
+- setLimit 使用 PageLimitOption
+- html 表格列 align
+
 ## 4.0.1
 - pageLimit 参数默认不设置使用全局 page 参数
 

@@ -1,4 +1,4 @@
-import { TypeCastHelper } from '@zenweb/helper';
+import { PageLimitOption, TypeCastHelper } from '@zenweb/helper';
 import { FormFields, FormBase, FieldOption } from "@zenweb/form";
 import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
@@ -27,8 +27,7 @@ const OutTypeValues = Object.values(OutType);
  */
 export class Grid {
   private _columns: { [key: string]: Column } = {};
-  private _limit?: number;
-  private _maxLimit?: number;
+  private _pageLimit: PageLimitOption = {};
   private _order?: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: FormFields = {};
@@ -54,14 +53,11 @@ export class Grid {
   }
 
   /**
-   * 默认条数限制
+   * 设置分页选项
    * - 不设置默认使用 Helper.page 选项的默认值
-   * @param defaultLimit 默认条数
-   * @param maxLimit 最大条数
    */
-  setLimit(limit?: number, maxLimit?: number) {
-    this._limit = limit;
-    this._maxLimit = maxLimit;
+  setLimit(option: PageLimitOption) {
+    Object.assign(this._pageLimit, option);
     return this;
   }
 
@@ -104,12 +100,10 @@ export class Grid {
    * 分页和排序
    */
   private async _pageQuery(finder: Finder, query?: any) {
-    const page = this.cast.page(query, {
+    const page = this.cast.page(query, Object.assign({}, this._pageLimit, {
       maxOrder: 1,
-      defaultLimit: this._limit,
-      maxLimit: this._maxLimit,
       allowOrder: Object.keys(this._columns).filter(c => this._columns[c][COLUMN_SORTABLE]),
-    });
+    }));
 
     const order = page.order ? page.order[0] : this._order;
     const total = await finder.count();
@@ -126,10 +120,8 @@ export class Grid {
 
     return {
       total,
-      limit: page.limit,
-      maxLimit: this._maxLimit,
-      offset: page.offset,
       order,
+      ...page,
     } as PageResult;
   }
 

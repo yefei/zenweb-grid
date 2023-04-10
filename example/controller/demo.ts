@@ -15,7 +15,7 @@ function ageRange(min: number, max: number) {
 
 class UserGrid extends GridBase {
   setup() {
-    this.column("id").label("ID").sortable().width(50);
+    this.column("id").label("ID").sortable().width(50).align('right');
     this.column("name").label("姓名").width(100);
     // this.column("profile.edu").label("教育");
     this.column("birthday").label("生日").formatter((row) =>
