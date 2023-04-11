@@ -25,10 +25,9 @@
   "license": "MIT",
   "homepage": "https://zenweb.node.ltd",
   "devDependencies": {
-    "@types/lodash": "^4.14.178",
     "@zenorm/generate": "^1.4.0",
     "@zenorm/generate-mysql": "^1.2.0",
-    "@zenweb/form": "^4.3.2",
+    "@zenweb/form": "^4.3.3",
     "@zenweb/mysql": "^3.5.2",
     "@zenweb/template": "^3.2.0",
     "@zenweb/template-nunjucks": "^3.1.0",
@@ -42,6 +41,6 @@
     "zenweb": "^3.25.1"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "property-at": "^1.0.1"
   }
 }

@@ -5,12 +5,14 @@ import { JsonWhere } from 'sql-easy-builder';
 import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, FilterForm, Finder } from "./types";
-import { get as objGet, set as objSet } from 'lodash';
+import { propertyAt } from 'property-at';
 import { ColumnSelectList, PageResult } from './types';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
 
 const FILTER_PREFIX: string = 'f_';
+
+const KEY_SPLITER = '.';
 
 enum OutType {
   FILTER = 'filter',
@@ -40,12 +42,14 @@ export class Grid {
    * @param key 字段key 唯一
    */
   column(key: string) {
-    if (!this._columns[key]) {
-      this._columns[key] = new Column(key);
-    }
-    return this._columns[key];
+    return this._columns[key] = new Column(key)
   }
 
+  /**
+   * 定义过滤器
+   * @param key 过滤器字段名
+   * @param field 字段
+   */
   filter(key: string, field: FieldOption | TypeKeys) {
     this._filters[key] = new Filter(key);
     this._filterFields[FILTER_PREFIX + key] = field;
@@ -205,10 +209,10 @@ export class Grid {
           if (formatterCall) {
             value = await formatterCall(row, col[COLUMN_KEY]);
           } else {
-            value = objGet(row, col[COLUMN_KEY]);
+            value = propertyAt(row, col[COLUMN_KEY].split(KEY_SPLITER));
           }
           if (typeof value !== 'undefined') {
-            objSet(d, col[COLUMN_KEY], value);
+            propertyAt(d, col[COLUMN_KEY].split(KEY_SPLITER), value);
           }
         }
         result.data.push(d);
