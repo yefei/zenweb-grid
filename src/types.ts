@@ -62,7 +62,7 @@ export interface FetchResult {
   query?: any;
 }
 
-export type ElementAttrValue<R> = string | number | DataCallback<R>;
+export type ElementAttrValue = string | number;
 export type ElementChildType = string | number | Element;
 export type ElementChildResult = string | number | ElementResult;
 
@@ -79,7 +79,7 @@ export interface ElementResult {
   /**
    * 元素属性
    */
-  attrs: Record<string, string>;
+  attrs: Record<string, ElementAttrValue>;
 
   /**
    * 子元素

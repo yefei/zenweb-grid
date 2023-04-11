@@ -8,7 +8,7 @@ export class Column<D extends DataRow> extends Element {
   _label?: string;
   _select?: ColumnSelectList;
   _dataCallback?: DataCallback<D>;
-  _dataCallbackElement?: DataCallback<D, Element<D>[]>;
+  _dataCallbackElement?: DataCallback<D, Element[]>;
   _hidden?: boolean;
   _sortCallback?: SortCallback;
 
@@ -82,7 +82,7 @@ export class Column<D extends DataRow> extends Element {
    * 自定义数据结果元素
    * @param callback 回调函数
    */
-  dataElement(callback: DataCallback<D, Element<D>[]>) {
+  dataElement(callback: DataCallback<D, Element[]>) {
     this._dataCallbackElement = callback;
   }
 
@@ -90,7 +90,7 @@ export class Column<D extends DataRow> extends Element {
    * 表头输出
    */
   async headOutput() {
-    const element = await this.output(undefined);
+    const element = await this.output();
     const out: ColumnHeadResult = {
       key: this.key,
       label: this._label,
@@ -111,7 +111,7 @@ export class Column<D extends DataRow> extends Element {
     if (this._dataCallbackElement) {
       const out: ElementResult[] = [];
       for (const el of await this._dataCallbackElement(row)) {
-        out.push(await el.output(row));
+        out.push(await el.output());
       }
       return out;
     }

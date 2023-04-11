@@ -48,7 +48,7 @@ export class Grid<D extends DataRow = DataRow> {
    * 创建一个 Element
    */
   createElement(type?: string) {
-    const el = new Element<D>();
+    const el = new Element();
     if (type) {
       el.type(type);
     }

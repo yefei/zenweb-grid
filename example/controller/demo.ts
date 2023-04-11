@@ -25,7 +25,7 @@ class UserGrid extends GridBase<User> {
 
     // 操作项
     this.column("actions").select().dataElement(row => [
-      this.createElement('a').attr('href', row => `/edit/${row.id}`).content('编辑'),
+      this.createElement('a').attr('href', `/edit/${row.id}`).append('编辑'),
     ]);
 
     // filters
