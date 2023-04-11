@@ -11,8 +11,6 @@
 - 多种前端渲染支持
 - 快速构建产品
 
-![screenshot](./example/screenshot.png)
-
 ## 安装
 
 ```bash

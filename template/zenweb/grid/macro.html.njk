@@ -1,28 +1,5 @@
 {% from "zenweb/form/macro.html.njk" import formFields -%}
 
-{# query 参数更新 #}
-{% macro queryParams(query, update) %}
-  {%- for k, v in query|dictsort -%}
-    {%- if not k in update -%}
-      {# 值是否为数组 #}
-      {%- if not v.trim -%}
-        {%- for i in v -%}
-          {{k|urlencode}}={{i|string|urlencode}}
-          {%- if not loop.last %}&{% endif -%}
-        {%- endfor -%}
-      {%- else -%}
-        {{k|urlencode}}={{v|string|urlencode}}&
-      {%- endif -%}
-    {%- endif -%}
-  {%- endfor -%}
-  {%- for uk, uv in update|dictsort -%}
-    {%- if uv -%}
-      {{uk|urlencode}}={{uv|string|urlencode}}
-      {%- if not loop.last %}&{% endif -%}
-    {%- endif -%}
-  {%- endfor -%}
-{%- endmacro %}
-
 {% macro gridStyle() %}
 <style>
 .zengrid {
@@ -98,11 +75,11 @@
         <th{% if c.width %} width="{{c.width}}"{% endif %}>
           {% if c.sortable %}
             {% if grid.page.order == '-' + c.key %}
-              <a href="?{{queryParams(grid.query, {order: c.key})}}">{{c.label}} ▼</a>
+              <a href="?{{grid.query|assign({order: c.key})|urlencode}}">{{c.label}} ▼</a>
             {% elif grid.page.order == c.key %}
-              <a href="?{{queryParams(grid.query, {order: null})}}">{{c.label}} ▲</a>
+              <a href="?{{grid.query|assign({order: undefined})|urlencode}}">{{c.label}} ▲</a>
             {% else %}
-              <a href="?{{queryParams(grid.query, {order: '-' + c.key})}}">{{c.label}}</a>
+              <a href="?{{grid.query|assign({order: '-' + c.key})|urlencode}}">{{c.label}}</a>
             {% endif %}
           {% else %}
             {{c.label}}
@@ -134,7 +111,7 @@
         {% if i == grid.page.limit -%}
           <b>{{i}}</b>
         {% elseif i <= grid.page.maxLimit -%}
-          <a href="?{{queryParams(grid.query, {limit: i, offset: grid.page.offset, page: null})}}">{{i}}</a>
+          <a href="?{{grid.query|assign({limit: i, offset: grid.page.offset, page: undefined})|urlencode}}">{{i}}</a>
         {% endif %}
        {%- endfor %} 条/页
     </div>
@@ -144,16 +121,16 @@
         <span>第一页</span>
         <span>上一页</span>
       {%- else -%}
-        <a href="?{{queryParams(grid.query, {offset: null, page: 1})}}">第一页</a>
-        <a href="?{{queryParams(grid.query, {offset: null, page: grid.page.page - 1})}}">上一页</a>
+        <a href="?{{grid.query|assign({offset: undefined, page: 1})|urlencode}}">第一页</a>
+        <a href="?{{grid.query|assign({offset: undefined, page: grid.page.page - 1})|urlencode}}">上一页</a>
       {%- endif -%}
       <span class="zengrid-page-current">{{grid.page.page}} / {{grid.page.pages}} 页</span>
       {%- if grid.page.page >= grid.page.pages -%}
         <span>下一页</span>
         <span>最后页</span>
       {%- else -%}
-        <a href="?{{queryParams(grid.query, {offset: null, page: grid.page.page + 1})}}">下一页</a>
-        <a href="?{{queryParams(grid.query, {offset: null, page: grid.page.pages})}}">最后页</a>
+        <a href="?{{grid.query|assign({offset: undefined, page: grid.page.page + 1})|urlencode}}">下一页</a>
+        <a href="?{{grid.query|assign({offset: undefined, page: grid.page.pages})|urlencode}}">最后页</a>
       {%- endif -%}
     </div>
   </div>
