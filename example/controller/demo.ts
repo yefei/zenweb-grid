@@ -18,10 +18,15 @@ class UserGrid extends GridBase {
     this.column("id").label("ID").sortable().width(50).align('right');
     this.column("name").label("姓名").width(100);
     // this.column("profile.edu").label("教育");
-    this.column("birthday").label("生日").formatter((row) =>
+    this.column("birthday").label("生日").result((row) =>
       row.birthday ? moment(row.birthday).format("YYYY-MM-DD") : "无"
     ).width(100);
-    this.column("created_at").label("注册日期").sortable().formatter((row, key) => moment(row[key]).format("YYYY/M/D H:mm"));
+    this.column("created_at").label("注册日期").sortable().result((row, key) => moment(row[key]).format("YYYY/M/D H:mm"));
+
+    // 操作项
+    this.column("actions").select().result(() => {
+      return "<a>AAA<a>"
+    });
 
     // filters
     this.filter("age", {

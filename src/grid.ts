@@ -2,7 +2,7 @@ import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
 import { FormFields, FormBase, FieldOption } from "@zenweb/form";
 import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
-import { Column, COLUMN_FORMATTER_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
+import { Column, COLUMN_RESULT_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, FilterForm, Finder } from "./types";
 import { propertyAt } from 'property-at';
@@ -205,9 +205,9 @@ export class Grid {
         const d = {};
         for (const col of columnList) {
           let value;
-          const formatterCall = col[COLUMN_FORMATTER_CALLBACK];
-          if (formatterCall) {
-            value = await formatterCall(row, col[COLUMN_KEY]);
+          const resultCall = col[COLUMN_RESULT_CALLBACK];
+          if (resultCall) {
+            value = await resultCall(row, col[COLUMN_KEY]);
           } else {
             value = propertyAt(row, col[COLUMN_KEY].split(KEY_SPLITER));
           }

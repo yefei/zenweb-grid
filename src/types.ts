@@ -1,6 +1,7 @@
 import { FormFields, FormLayout } from "@zenweb/form";
 import { PageResultWithOption } from "@zenweb/helper";
 import { JsonWhere } from 'sql-easy-builder';
+import { Element } from "./element";
 
 export type ColumnAs = { [key: string]: string };
 export type ColumnSelectList = (string | ColumnAs)[];
@@ -15,11 +16,11 @@ export interface Finder {
 }
 
 /**
- * 结果格式化回调
+ * 自定义结果回调
  * @param row 行结果
  * @param key 列名
  */
-export type FormatterCallback = (row: ResultRow, key: string) => any | Promise<any>;
+export type ResultCallback = (row: ResultRow, key: string) => any | Promise<any>;
 
 /**
  * 排序方法回调函数
@@ -58,4 +59,15 @@ export interface FetchResult {
   page?: PageResult;
   data?: ResultRow[];
   query?: any;
+}
+
+
+export type ElementAttrValue = string | number | ResultCallback;
+export type ElementChildType = string | number | Element;
+export type ElementChildResult = string | number | ElementResult;
+
+export interface ElementResult {
+  type: string;
+  attrs: Record<string, string>;
+  children?: ElementChildResult[];
 }

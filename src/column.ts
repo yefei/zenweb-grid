@@ -1,8 +1,8 @@
-import { ColumnAlignType, ColumnExports, ColumnSelectList, FormatterCallback, SortCallback } from './types';
+import { ColumnAlignType, ColumnExports, ColumnSelectList, ResultCallback, SortCallback } from './types';
 
 export const COLUMN_KEY = Symbol('Column#key');
 export const COLUMN_SELECT = Symbol('Column#select');
-export const COLUMN_FORMATTER_CALLBACK = Symbol('Column#formatter');
+export const COLUMN_RESULT_CALLBACK = Symbol('Column#result');
 export const COLUMN_EXPORTS = Symbol('Column#exports');
 export const COLUMN_HIDDEN = Symbol('Column#hidden');
 export const COLUMN_SORTABLE = Symbol('Column#sortable');
@@ -11,7 +11,7 @@ export const COLUMN_SORT_CALLBACK = Symbol('Column#sortCallback');
 export class Column {
   [COLUMN_KEY]: string;
   [COLUMN_SELECT]?: ColumnSelectList;
-  [COLUMN_FORMATTER_CALLBACK]?: FormatterCallback;
+  [COLUMN_RESULT_CALLBACK]?: ResultCallback;
   [COLUMN_EXPORTS]: ColumnExports;
   [COLUMN_HIDDEN]?: boolean;
   [COLUMN_SORTABLE]?: boolean;
@@ -81,10 +81,10 @@ export class Column {
   }
 
   /**
-   * 自定义结果格式
+   * 自定义结果
    */
-  formatter(callback: FormatterCallback) {
-    this[COLUMN_FORMATTER_CALLBACK] = callback;
+  result(callback: ResultCallback) {
+    this[COLUMN_RESULT_CALLBACK] = callback;
     return this;
   }
 }
