@@ -13,20 +13,20 @@ function ageRange(min: number, max: number) {
   };
 }
 
-class UserGrid extends GridBase {
+class UserGrid extends GridBase<User> {
   setup() {
     this.column("id").label("ID").sortable().width(50).align('right');
     this.column("name").label("姓名").width(100);
     // this.column("profile.edu").label("教育");
-    this.column("birthday").label("生日").result((row) =>
+    this.column("birthday").label("生日").width(100).data(row =>
       row.birthday ? moment(row.birthday).format("YYYY-MM-DD") : "无"
-    ).width(100);
-    this.column("created_at").label("注册日期").sortable().result((row, key) => moment(row[key]).format("YYYY/M/D H:mm"));
+    );
+    this.column("created_at").label("注册日期").sortable().data(row => moment(row.created_at).format("YYYY/M/D H:mm"));
 
     // 操作项
-    this.column("actions").select().result(() => {
-      return "<a>AAA<a>"
-    });
+    this.column("actions").select().dataElement(row => [
+      this.createElement('a').attr('href', row => `/edit/${row.id}`).content('编辑'),
+    ]);
 
     // filters
     this.filter("age", {

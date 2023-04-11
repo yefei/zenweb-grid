@@ -5,22 +5,21 @@ import { Element } from "./element";
 
 export type ColumnAs = { [key: string]: string };
 export type ColumnSelectList = (string | ColumnAs)[];
-export type ResultRow = { [key: string]: any };
+export type DataRow = { [key: string]: any };
 
 export interface Finder {
   whereAnd(w: JsonWhere): Finder;
   limit(limit: number, offset: number): Finder;
   order(...columns: string[]): Finder;
   count(): Promise<number>;
-  all(...columns: ColumnSelectList): Promise<ResultRow[]>;
+  all(...columns: ColumnSelectList): Promise<DataRow[]>;
 }
 
 /**
  * 自定义结果回调
  * @param row 行结果
- * @param key 列名
  */
-export type ResultCallback = (row: ResultRow, key: string) => any | Promise<any>;
+export type DataCallback<T, R = any> = (row: T) => R | Promise<R>;
 
 /**
  * 排序方法回调函数
@@ -30,12 +29,14 @@ export type SortCallback = (desc: boolean) => string[];
 
 export type ColumnAlignType = 'left' | 'center' | 'right';
 
-export interface ColumnExports {
+/**
+ * 表头结果
+ */
+export interface ColumnHeadResult extends ElementResult {
   key: string;
   label?: string;
   sortable?: boolean;
-  width?: string | number;
-  align?: ColumnAlignType;
+  dataType: 'data' | 'element';
 }
 
 export interface FilterForm {
@@ -55,19 +56,33 @@ export interface FetchResult {
   filterForm?: FilterForm;
   filterData?: any;
   filterInput?: any;
-  columns?: ColumnExports[];
+  head?: ColumnHeadResult[];
   page?: PageResult;
-  data?: ResultRow[];
+  data?: DataRow[];
   query?: any;
 }
 
-
-export type ElementAttrValue = string | number | ResultCallback;
+export type ElementAttrValue<R> = string | number | DataCallback<R>;
 export type ElementChildType = string | number | Element;
 export type ElementChildResult = string | number | ElementResult;
 
+/**
+ * 元素结果
+ */
 export interface ElementResult {
+  /**
+   * 元素类型
+   * @default 'div'
+   */
   type: string;
+
+  /**
+   * 元素属性
+   */
   attrs: Record<string, string>;
+
+  /**
+   * 子元素
+   */
   children?: ElementChildResult[];
 }

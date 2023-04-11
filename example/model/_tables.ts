@@ -1,6 +1,6 @@
 // zenorm 自动生成文件
 // 请不要修改此文件，因为此文件在每次重新生成数据库结构时会被覆盖
-// create at: 2023/4/8 19:14:07
+// create at: 2023/4/11 22:58:48
 // create by: YeFei@DESKTOP-B7B4E7I
 // database: zenorm_test
 
@@ -82,7 +82,7 @@ export class ProfileTable {
 }
 
 export class UserTable {
-  static columns = ["id","name","birthday","type"];
+  static columns = ["id","name","birthday","type","created_at"];
   /**
    * type: int(11)
    * collation: null
@@ -112,4 +112,11 @@ export class UserTable {
    * default: null
    */
   type?: '1' | '2' | '3' | null;
+  /**
+   * type: datetime
+   * collation: null
+   * null: YES
+   * default: CURRENT_TIMESTAMP
+   */
+  created_at?: Date | null;
 }

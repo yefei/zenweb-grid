@@ -1,13 +1,9 @@
-import { ElementAttrValue, ElementChildResult, ElementChildType, ElementResult, ResultRow } from './types';
+import { ElementAttrValue, ElementChildResult, ElementChildType, ElementResult } from './types';
 
-export const RESULT = Symbol('Element#result');
-
-export class Element {
+export class Element<R = undefined> {
   _type = 'div';
-  _attrs: Record<string, ElementAttrValue> = {};
+  _attrs: Record<string, ElementAttrValue<R>> = {};
   _children: ElementChildType[] = [];
-
-  constructor(private _parent?: Element) {}
 
   /**
    * 设置类型
@@ -23,7 +19,7 @@ export class Element {
    * @param key 属性名
    * @param value 属性值
    */
-  attr(key: string, value: ElementAttrValue) {
+  attr(key: string, value: ElementAttrValue<R>) {
     this._attrs[key] = value;
     return this;
   }
@@ -46,41 +42,34 @@ export class Element {
    */
   child<C extends ElementChildType = Element>(child?: C): C {
     if (typeof child === 'undefined') {
-      child = <C> new Element(this);
+      child = <C> new Element();
     }
     this._children.push(child);
     return child;
   }
 
   /**
-   * 返回上一级
-   * - 配合 `child` 使用
-   */
-  end() {
-    return this._parent;
-  }
-
-  /**
    * 结果输出
    */
-  async [RESULT](row: ResultRow, key: string): Promise<ElementResult> {
+  async output(row: R) {
     const attrs: Record<string, any> = {};
     for (const [ak, av] of Object.entries(this._attrs)) {
-      attrs[ak] = typeof av === 'function' ? await av(row, key) : av;
+      attrs[ak] = typeof av === 'function' ? await av(row) : av;
     }
 
     let children: ElementChildResult[] | undefined;
     if (this._children.length > 0) {
       children = [];
       for (const child of this._children) {
-        children.push(child instanceof Element ? await child[RESULT](row, key) : child);
+        children.push(child instanceof Element ? await child.output(<any>row) : child);
       }
     }
 
-    return {
+    const out: ElementResult = {
       type: this._type,
       attrs,
       children,
-    }
+    };
+    return out;
   }
 }

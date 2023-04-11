@@ -1,37 +1,28 @@
-import { ColumnAlignType, ColumnExports, ColumnSelectList, ResultCallback, SortCallback } from './types';
+import { propertyAt } from 'property-at';
+import { Element } from './element';
+import { ColumnAlignType, ColumnHeadResult, ColumnSelectList, DataCallback, DataRow, ElementResult, SortCallback } from './types';
 
-export const COLUMN_KEY = Symbol('Column#key');
-export const COLUMN_SELECT = Symbol('Column#select');
-export const COLUMN_RESULT_CALLBACK = Symbol('Column#result');
-export const COLUMN_EXPORTS = Symbol('Column#exports');
-export const COLUMN_HIDDEN = Symbol('Column#hidden');
-export const COLUMN_SORTABLE = Symbol('Column#sortable');
-export const COLUMN_SORT_CALLBACK = Symbol('Column#sortCallback');
+export const KEY_SPLITER = '.';
 
-export class Column {
-  [COLUMN_KEY]: string;
-  [COLUMN_SELECT]?: ColumnSelectList;
-  [COLUMN_RESULT_CALLBACK]?: ResultCallback;
-  [COLUMN_EXPORTS]: ColumnExports;
-  [COLUMN_HIDDEN]?: boolean;
-  [COLUMN_SORTABLE]?: boolean;
-  [COLUMN_SORT_CALLBACK]?: SortCallback;
+export class Column<D extends DataRow> extends Element {
+  _label?: string;
+  _select?: ColumnSelectList;
+  _dataCallback?: DataCallback<D>;
+  _dataCallbackElement?: DataCallback<D, Element<D>[]>;
+  _hidden?: boolean;
+  _sortCallback?: SortCallback;
 
-  constructor(key: string) {
-    this[COLUMN_KEY] = key;
-    this[COLUMN_EXPORTS] = { key };
+  constructor(public key: string) {
+    super();
+    this.type('th');
   }
 
-  get exports() {
-    const attrs: ColumnExports = Object.assign({}, this[COLUMN_EXPORTS]);
-    if (this[COLUMN_SORTABLE]) {
-      attrs.sortable = true;
-    }
-    return attrs;
-  }
-
+  /**
+   * 表格头显示名
+   * @param label 显示名
+   */
   label(label: string) {
-    this[COLUMN_EXPORTS].label = label;
+    this._label = label;
     return this;
   }
 
@@ -41,8 +32,7 @@ export class Column {
    *  如果指定值为 string 类型，则使用 string 作为排序字段
    */
   sortable(callback?: SortCallback | string) {
-    this[COLUMN_SORTABLE] = true;
-    this[COLUMN_SORT_CALLBACK] = typeof callback === 'string' ? (desc => [`${desc ? '-' : ''}${callback}`]) : callback;
+    this._sortCallback = typeof callback === 'string' ? (desc => [`${desc ? '-' : ''}${callback}`]) : callback;
     return this;
   }
 
@@ -50,7 +40,7 @@ export class Column {
    * 设置列宽度
    */
   width(width: string | number) {
-    this[COLUMN_EXPORTS].width = width;
+    this.attr('width', width);
     return this;
   }
 
@@ -59,7 +49,7 @@ export class Column {
    * @default 'left'
    */
   align(pos: ColumnAlignType) {
-    this[COLUMN_EXPORTS].align = pos;
+    this.attr('align', pos);
     return this;
   }
 
@@ -68,7 +58,7 @@ export class Column {
    * @param columns 如果不指定则默认使用 key 值，如果指定 null 则不检出
    */
   select(...columns: ColumnSelectList) {
-    this[COLUMN_SELECT] = columns;
+    this._select = columns;
     return this;
   }
 
@@ -76,15 +66,55 @@ export class Column {
    * 隐藏列显示
    */
   hidden() {
-    this[COLUMN_HIDDEN] = true;
+    this._hidden = true;
     return this;
   }
 
   /**
-   * 自定义结果
+   * 自定义数据结果
+   * @param callback 回调函数
    */
-  result(callback: ResultCallback) {
-    this[COLUMN_RESULT_CALLBACK] = callback;
-    return this;
+  data(callback: DataCallback<D>) {
+    this._dataCallback = callback;
+  }
+
+  /**
+   * 自定义数据结果元素
+   * @param callback 回调函数
+   */
+  dataElement(callback: DataCallback<D, Element<D>[]>) {
+    this._dataCallbackElement = callback;
+  }
+
+  /**
+   * 表头输出
+   */
+  async headOutput() {
+    const element = await this.output(undefined);
+    const out: ColumnHeadResult = {
+      key: this.key,
+      label: this._label,
+      sortable: !!this._sortCallback,
+      dataType: this._dataCallbackElement ? 'element' : 'data',
+      ...element,
+    };
+    return out;
+  }
+
+  /**
+   * 表数据输出
+   */
+  async dataOutput(row: D) {
+    if (this._dataCallback) {
+      return await this._dataCallback(row);
+    }
+    if (this._dataCallbackElement) {
+      const out: ElementResult[] = [];
+      for (const el of await this._dataCallbackElement(row)) {
+        out.push(await el.output(row));
+      }
+      return out;
+    }
+    return propertyAt(row, this.key.split(KEY_SPLITER));
   }
 }

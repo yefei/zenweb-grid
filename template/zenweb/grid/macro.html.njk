@@ -67,37 +67,53 @@
 {% macro gridScript(allow_external=true) %}
 {% endmacro %}
 
+{% macro gridElement(els) -%}
+  {%- for e in els -%}
+    {%- if e.type -%}
+      <{{e.type}}{% for k, v in e.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>{{gridElement(e.children)}}</{{e.type}}>
+    {%- else -%}
+      {{e}}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endmacro %}
+
 {% macro gridTable(grid) -%}
   <table class="zengrid-table">
     <thead>
       <tr>
-      {% for c in grid.columns -%}
-        <th{% if c.width %} width="{{c.width}}"{% endif %}>
-          {% if c.sortable %}
-            {% if grid.page.order == '-' + c.key %}
+      {% for c in grid.head -%}
+        <{{c.type}}{% for k, v in c.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>
+          {%- if c.sortable -%}
+            {%- if grid.page.order == '-' + c.key -%}
               <a href="?{{grid.query|assign({order: c.key})|urlencode}}">{{c.label}} ▼</a>
-            {% elif grid.page.order == c.key %}
+            {%- elif grid.page.order == c.key -%}
               <a href="?{{grid.query|assign({order: undefined})|urlencode}}">{{c.label}} ▲</a>
-            {% else %}
+            {%- else -%}
               <a href="?{{grid.query|assign({order: '-' + c.key})|urlencode}}">{{c.label}}</a>
-            {% endif %}
-          {% else %}
+            {%- endif -%}
+          {%- else -%}
             {{c.label}}
-          {% endif %}
-        </th>
+          {%- endif -%}
+        </{{c.type}}>
       {% endfor -%}
       </tr>
     </thead>
     <tbody>
     {% for i in grid.data -%}
       <tr>
-        {%- for c in grid.columns -%}
-        <td{%- if c.align %} align="{{c.align}}"{% endif -%}>{{i[c.key]}}</td>
+        {%- for c in grid.head -%}
+          <td>
+            {%- if c.dataType == 'element' -%}
+              {{gridElement(i[c.key])}}
+            {%- else -%}
+              {{i[c.key]}}
+            {%- endif -%}
+          </td>
         {%- endfor -%}
       </tr>
     {% else %}
       <tr>
-        <td colspan="{{grid.columns|length}}" class="zengrid-table-empty">- 无结果 -</td>
+        <td colspan="{{grid.head|length}}" class="zengrid-table-empty">- 无结果 -</td>
       </tr>
     {% endfor -%}
     </tbody>

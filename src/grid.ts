@@ -2,21 +2,20 @@ import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
 import { FormFields, FormBase, FieldOption } from "@zenweb/form";
 import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
-import { Column, COLUMN_RESULT_CALLBACK, COLUMN_HIDDEN, COLUMN_KEY, COLUMN_SORTABLE, COLUMN_SORT_CALLBACK, COLUMN_SELECT } from "./column";
+import { Column, KEY_SPLITER } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, FilterForm, Finder } from "./types";
+import { FetchResult, FilterForm, Finder, DataRow } from "./types";
 import { propertyAt } from 'property-at';
 import { ColumnSelectList, PageResult } from './types';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
+import { Element } from './element';
 
 const FILTER_PREFIX: string = 'f_';
 
-const KEY_SPLITER = '.';
-
 enum OutType {
   FILTER = 'filter',
-  COLUMNS = 'columns',
+  HEAD = 'head',
   PAGE = 'page',
   DATA = 'data',
   QUERY = 'query',
@@ -27,8 +26,8 @@ const OutTypeValues = Object.values(OutType);
 /**
  * 使用依赖注入取得类实例
  */
-export class Grid {
-  private _columns: { [key: string]: Column } = {};
+export class Grid<D extends DataRow = DataRow> {
+  private _columns: { [key: string]: Column<D> } = {};
   private _pageLimit: PageLimitOption = {};
   private _order?: string;
   private _filters: { [key: string]: Filter } = {};
@@ -38,11 +37,22 @@ export class Grid {
   @inject protected cast!: TypeCastHelper;
 
   /**
-   * 定义列
+   * 定义数据列
    * @param key 字段key 唯一
    */
   column(key: string) {
     return this._columns[key] = new Column(key)
+  }
+
+  /**
+   * 创建一个 Element
+   */
+  createElement(type?: string) {
+    const el = new Element<D>();
+    if (type) {
+      el.type(type);
+    }
+    return el;
   }
 
   /**
@@ -108,7 +118,7 @@ export class Grid {
     const page = this.cast.page(query, Object.assign({}, this._pageLimit, {
       total,
       maxOrder: 1,
-      allowOrder: Object.keys(this._columns).filter(c => this._columns[c][COLUMN_SORTABLE]),
+      allowOrder: Object.keys(this._columns).filter(c => !!this._columns[c]._sortCallback),
     } as PageOption));
 
     const order = page.order ? page.order[0] : this._order;
@@ -117,7 +127,7 @@ export class Grid {
     if (total && order) {
       const orderDesc = order.startsWith('-');
       const orderKey = orderDesc ? order.slice(1) : order;
-      const orderCall = this._columns[orderKey][COLUMN_SORT_CALLBACK];
+      const orderCall = this._columns[orderKey]._sortCallback;
       finder.order(...(orderCall ? orderCall(orderDesc) : [order]));
     }
 
@@ -178,8 +188,11 @@ export class Grid {
       result.filterForm = <FilterForm> filter.result;
     }
 
-    if (includes.includes(OutType.COLUMNS)) {
-      result.columns = columnList.filter(i => !i[COLUMN_HIDDEN]).map(i => i.exports);
+    if (includes.includes(OutType.HEAD)) {
+      result.head = [];
+      for (const col of columnList.filter(i => !i._hidden)) {
+        result.head.push(await col.headOutput());
+      }
     }
 
     if (includes.includes(OutType.PAGE)) {
@@ -189,33 +202,27 @@ export class Grid {
     if (includes.includes(OutType.DATA)) {
       const dbColumns: ColumnSelectList = [];
       for (const i of columnList) {
-        if (i[COLUMN_SELECT]) {
-          if (i[COLUMN_SELECT][0] === null) {
+        if (i._select) {
+          if (i._select[0] === null) {
             continue;
           }
-          dbColumns.push(...i[COLUMN_SELECT]);
+          dbColumns.push(...i._select);
         } else {
-          dbColumns.push(i[COLUMN_KEY]);
+          dbColumns.push(i.key);
         }
       }
-      const data = page.total ? await finder.all(...dbColumns) : [];
+      const results = page.total ? <D[]> await finder.all(...dbColumns) : [];
       // 处理结果行
       result.data = [];
-      for (const row of data) {
-        const d = {};
+      for (const row of results) {
+        const data: DataRow = {};
         for (const col of columnList) {
-          let value;
-          const resultCall = col[COLUMN_RESULT_CALLBACK];
-          if (resultCall) {
-            value = await resultCall(row, col[COLUMN_KEY]);
-          } else {
-            value = propertyAt(row, col[COLUMN_KEY].split(KEY_SPLITER));
-          }
+          const value = await col.dataOutput(row);
           if (typeof value !== 'undefined') {
-            propertyAt(d, col[COLUMN_KEY].split(KEY_SPLITER), value);
+            propertyAt(data, col.key.split(KEY_SPLITER), value);
           }
         }
-        result.data.push(d);
+        result.data.push(data);
       }
     }
   
@@ -223,7 +230,7 @@ export class Grid {
   }
 }
 
-export abstract class GridBase extends Grid {
+export abstract class GridBase<D extends DataRow = DataRow> extends Grid<D> {
   abstract setup(): void | Promise<void>;
 
   @init [Symbol()]() {
