@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.3
+- html 渲染使用 page=页 分页
+
 ## 4.0.2
 - setLimit 使用 PageLimitOption
 - html 表格列 align

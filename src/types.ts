@@ -45,11 +45,6 @@ export interface FilterForm {
 
 export interface PageResult extends Omit<PageResultWithOption, 'order'> {
   /**
-   * 结果总数
-   */
-  total: number;
-
-  /**
    * 排序列名
    */
   order: string;

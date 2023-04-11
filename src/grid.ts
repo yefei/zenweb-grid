@@ -1,4 +1,4 @@
-import { PageLimitOption, TypeCastHelper } from '@zenweb/helper';
+import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
 import { FormFields, FormBase, FieldOption } from "@zenweb/form";
 import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
@@ -100,13 +100,14 @@ export class Grid {
    * 分页和排序
    */
   private async _pageQuery(finder: Finder, query?: any) {
+    const total = await finder.count();
     const page = this.cast.page(query, Object.assign({}, this._pageLimit, {
+      total,
       maxOrder: 1,
       allowOrder: Object.keys(this._columns).filter(c => this._columns[c][COLUMN_SORTABLE]),
-    }));
+    } as PageOption));
 
     const order = page.order ? page.order[0] : this._order;
-    const total = await finder.count();
 
     // 排序
     if (total && order) {
@@ -119,9 +120,8 @@ export class Grid {
     finder.limit(page.limit, page.offset);
 
     return {
-      total,
-      order,
       ...page,
+      order,
     } as PageResult;
   }
 
