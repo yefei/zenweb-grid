@@ -30,7 +30,7 @@ class UserGrid extends GridBase<User> {
     // 自定义数据列元素
     this.column("auth", false).dataElement(row => this.createElement()
     .class('aaa', 'ccc', '', { bbb: true, ccc: false })
-    .attr('style', 'background-color:rgba(75,173,58,0.30)').append('数据列元素属性演示'));
+    .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('数据列元素属性演示'));
 
     // 数据列子元素
     this.column("actions", false).dataElement(row => [

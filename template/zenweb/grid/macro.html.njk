@@ -69,7 +69,7 @@
 {% macro gridElement(els) -%}
   {%- for e in els -%}
     {%- if e.type -%}
-      <{{e.type}}{% for k, v in e.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>{{gridElement(e.children)}}</{{e.type}}>
+      <{{e.type}}{% for k, v in e.attrs or {}|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>{{gridElement(e.children)}}</{{e.type}}>
     {%- else -%}
       {{e}}
     {%- endif -%}
@@ -81,7 +81,7 @@
     <thead>
       <tr>
       {% for c in grid.head -%}
-        <{{c.type}}{% for k, v in c.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>
+        <{{c.type}}{% for k, v in c.attrs or {}|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>
           {%- if c.sortable -%}
             {%- if grid.page.order == '-' + c.key -%}
               <a href="?{{grid.query|assign({order: c.key})|urlencode}}">{{c.label}} ▼</a>
@@ -106,7 +106,7 @@
             {%- if el|isarray -%}
               <td>{{gridElement(el)}}</td>
             {%- else -%}
-              <{{el.type}}{% for k, v in el.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>{{gridElement(el.children)}}</{{el.type}}>
+              {{gridElement([el])}}
             {%- endif -%}
           {%- else -%}
             <td>{{i[c.key]}}</td>

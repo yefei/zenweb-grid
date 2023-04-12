@@ -9,7 +9,7 @@ import { propertyAt } from 'property-at';
 import { ColumnSelect, PageResult } from './types';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
-import { Element } from './element';
+import { Element } from 'element-easy-builder';
 
 const FILTER_PREFIX: string = 'f_';
 

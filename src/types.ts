@@ -1,7 +1,7 @@
 import { FormFields, FormLayout } from "@zenweb/form";
 import { PageResultWithOption } from "@zenweb/helper";
 import { JsonWhere } from 'sql-easy-builder';
-import { Element } from "./element";
+import { ElementResult } from "element-easy-builder";
 
 export type ColumnAs = { [key: string]: string };
 export type ColumnSelect = string | ColumnAs;
@@ -58,29 +58,4 @@ export interface FetchResult {
   page?: PageResult;
   data?: DataRow[];
   query?: any;
-}
-
-export type ElementAttrValue = string | number;
-export type ElementChildType = string | number | Element;
-export type ElementChildResult = string | number | ElementResult;
-
-/**
- * 元素结果
- */
-export interface ElementResult {
-  /**
-   * 元素类型
-   * @default 'div'
-   */
-  type: string;
-
-  /**
-   * 元素属性
-   */
-  attrs: Record<string, ElementAttrValue>;
-
-  /**
-   * 子元素
-   */
-  children?: ElementChildResult[];
 }

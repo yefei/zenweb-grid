@@ -21,75 +21,14 @@ $ npm i @zenweb/grid @zenweb/form
 
 ### 请求格式
 
-```js
+```ts
 {
-  includes: 'filter,columns,page,data,query', // 返回时需要饱含的数据项, 如果无则返回所有项
-  limit: 100, // 返回条数限制
-  offset: 0, // 数据起始位置
-  order: '-id', // 排序规则， 字段名称, 负号开头则代表倒序，无开头正序
-  f_aaa: '123', // 表单过滤
-}
-```
-
-### 返回格式
-
-```js
-{
-  // 过滤表单
-  filterForm: {
-    // 表单字段
-    fields: {
-      // 字段项
-      // 名称: 字段选项
-      f_aaa: {
-        name: 'Input', // 控件名称，用于前端渲染，目前支持名称见下表
-        label?: '字段显示名称',
-        help?: '帮助信息',
-        choices?: [ // 选择项, 在控件是 Select Multiple Cascader 时出现
-          {
-            label: '显示名称',
-            value: 1, // 选项值
-            unselectable?: false, // 不可选择项, Cascader 专有
-            parent?: 2, // 父项, Cascader 专有
-          }
-        ],
-        format?: 'YYYY-MM-DD', // 日期格式, DateRange, Date 专有
-        start?: '2020-1-1', // 开始日期 DateRange 专有
-        end?: '2020-2-2', // 结束日期 DateRange 专有
-        action?: 'https://a.com', // 上传地址, upload 控件
-        limit?: 1, // 上传数量限制, upload 控件
-      }
-    },
-    // 表单字段顺序
-    layout: [
-      'f_aaa', 'f_bbb'
-    ]
-  },
-  // 当过滤表单验证出错时
-  filterErrors?: {
-    // 字段名: 错误信息
-    f_aaa: '错误信息',
-  },
-  // 列信息
-  columns: [
-    key: 'id', // 键名
-    label?: '显示名',
-    sortable?: true, // 是否可排序
-    width?: 120, // 宽度
-    align?: 'left' | 'center' | 'right', // 对齐方式
-  ],
-  // 数据结果
-  data: [
-    { id: 1, name: 'test' }, // 数据库返回结果行
-  ],
-  // 分页信息
-  page: {
-    total: 100, // 总条数
-    limit: 10, // 本次返回限制条数
-    maxLimit: 20, // 最大返回限制条数
-    offset: 0, // 数据起始位置
-    order: '-id', // 本次排序规则
-  }
+  includes?: 'filter,head,page,data,query', // 返回时需要饱含的数据项, 如果无则返回所有项
+  limit?: 100, // 返回条数限制
+  offset?: 0, // 数据起始位置或使用 page 参数
+  page?: 1, // 第几页或使用 offset 参数
+  order?: '-id', // 排序规则， 字段名称, 负号开头则代表倒序，无开头正序
+  f_aaa?: '123', // 表单过滤字段
 }
 ```
 
@@ -149,7 +88,7 @@ function ageRange(min: number, max: number) {
 
 class UserGrid extends GridBase<User> {
   setup() {
-    this.column("id").label("ID").sortable().width(50).align('right');
+    this.column("id").label("ID").sortable().width(50);
 
     this.column("name").label("姓名").width(100);
 
@@ -163,7 +102,8 @@ class UserGrid extends GridBase<User> {
 
     // 自定义数据列元素
     this.column("auth", false).dataElement(row => this.createElement()
-    .attr('style', 'background-color:rgba(75,173,58,0.30)').append('数据列元素属性演示'));
+    .class('aaa', 'ccc', '', { bbb: true, ccc: false })
+    .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('数据列元素属性演示'));
 
     // 数据列子元素
     this.column("actions", false).dataElement(row => [

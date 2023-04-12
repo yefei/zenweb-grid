@@ -1,6 +1,6 @@
 import { propertyAt } from 'property-at';
-import { Element } from './element';
-import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, ElementAttrValue, ElementResult, SortCallback } from './types';
+import { Element, ElementAttrValue, ElementResult } from 'element-easy-builder';
+import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, SortCallback } from './types';
 
 export const KEY_SPLITER = '.';
 
@@ -94,7 +94,7 @@ export class Column<D extends DataRow> extends Element {
    * 表头输出
    */
   async headOutput() {
-    const element = await this.output();
+    const element = this.output();
     const out: ColumnHeadResult = {
       key: this.key,
       label: this._label,
@@ -124,7 +124,7 @@ export class Column<D extends DataRow> extends Element {
       if (Array.isArray(_el)) {
         const child: ElementResult[] = [];
         for (const el of _el) {
-          child.push(await el.output());
+          child.push(el.output());
         }
         return child;
       }
