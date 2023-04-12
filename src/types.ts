@@ -27,8 +27,6 @@ export type DataCallback<T, R = any> = (row: T) => R | Promise<R>;
  */
 export type SortCallback = (desc: boolean) => string[];
 
-export type ColumnAlignType = 'left' | 'center' | 'right';
-
 /**
  * 表头结果
  */

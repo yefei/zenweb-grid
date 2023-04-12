@@ -15,7 +15,7 @@ function ageRange(min: number, max: number) {
 
 class UserGrid extends GridBase<User> {
   setup() {
-    this.column("id").label("ID").sortable().width(50).align('right');
+    this.column("id").label("ID").sortable().width(50);
 
     this.column("name").label("姓名").width(100);
 
@@ -29,6 +29,7 @@ class UserGrid extends GridBase<User> {
 
     // 自定义数据列元素
     this.column("auth", false).dataElement(row => this.createElement()
+    .class('aaa', 'ccc', '', { bbb: true, ccc: false })
     .attr('style', 'background-color:rgba(75,173,58,0.30)').append('数据列元素属性演示'));
 
     // 数据列子元素

@@ -1,6 +1,6 @@
 import { propertyAt } from 'property-at';
 import { Element } from './element';
-import { ColumnAlignType, ColumnHeadResult, ColumnSelect, DataCallback, DataRow, ElementResult, SortCallback } from './types';
+import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, ElementAttrValue, ElementResult, SortCallback } from './types';
 
 export const KEY_SPLITER = '.';
 
@@ -50,17 +50,8 @@ export class Column<D extends DataRow> extends Element {
   /**
    * 设置列宽度
    */
-  width(width: string | number) {
+  width(width: ElementAttrValue) {
     this.attr('width', width);
-    return this;
-  }
-
-  /**
-   * 对齐方式
-   * @default 'left'
-   */
-  align(pos: ColumnAlignType) {
-    this.attr('align', pos);
     return this;
   }
 
