@@ -16,19 +16,27 @@ function ageRange(min: number, max: number) {
 class UserGrid extends GridBase<User> {
   setup() {
     this.column("id").label("ID").sortable().width(50).align('right');
+
     this.column("name").label("姓名").width(100);
+
     // this.column("profile.edu").label("教育");
+
     this.column("birthday").label("生日").width(100).data(row =>
       row.birthday ? moment(row.birthday).format("YYYY-MM-DD") : "无"
     );
+
     this.column("created_at").label("注册日期").sortable().data(row => moment(row.created_at).format("YYYY/M/D H:mm"));
 
-    // 操作项
-    this.column("actions").select().dataElement(row => [
+    // 自定义数据列元素
+    this.column("auth", false).dataElement(row => this.createElement()
+    .attr('style', 'background-color:rgba(75,173,58,0.30)').append('数据列元素属性演示'));
+
+    // 数据列子元素
+    this.column("actions", false).dataElement(row => [
       this.createElement('a').attr('href', `/edit/${row.id}`).append('编辑'),
     ]);
 
-    // filters
+    // 数据过滤器定义
     this.filter("age", {
       type: 'int',
       widget: widgets.select("年龄段").choices([
@@ -45,14 +53,17 @@ class UserGrid extends GridBase<User> {
       { birthday: ageRange(40, 55) },
       { birthday: ageRange(55, 100) },
     ][value]);
+
     this.filter("created_at", {
       type: 'string',
       widget: widgets.dateRange("注册日期").end(new Date().toDateString())
     }).where(value => ({ created_at: { $between: value } }));
+
     this.filter("search", {
       type: 'trim1',
       widget: widgets.text("关键词搜索")
     }).where((value) => ({ name: { $like: `%${value}%` } }));
+
     this.filter("cas", {
       type: 'int',
       widget: widgets.cascader("级连选择").choices([
@@ -63,11 +74,16 @@ class UserGrid extends GridBase<User> {
       console.log('查询处理');
       return {};
     });
+
+    // 设置默认排序
     this.setOrder("-id");
   }
 }
 
 export class DemoController {
+  /**
+   * 服务器端 html 渲染
+   */
   @mapping()
   async index(ctx: Context, grid: UserGrid) {
     ctx.template('grid.html.njk');
@@ -76,6 +92,9 @@ export class DemoController {
     };
   }
 
+  /**
+   * 前后分离接口输出
+   */
   @mapping()
   async grid(grid: UserGrid) {
     return await grid.fetch(User.find());

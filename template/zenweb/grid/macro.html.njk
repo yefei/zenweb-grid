@@ -26,23 +26,22 @@
 }
 
 .zengrid-table {
-  border: 1px solid #AAA;
-  border-collapse: separate;
-  border-spacing: 0;
+  border: 2px solid #c8c8c8;
+  border-collapse: collapse;
+  letter-spacing: 1px;
   width: 100%;
 }
-.zengrid-table th {
-  text-align: left;
-  padding: 0.25rem 0.5rem;
+.zengrid-table th,
+.zengrid-table td {
+  padding: 5px 10px;
+  border: 1px solid #bebebe;
+  text-align: center;
 }
-.zengrid-table thead {
-  background-color: #eee;
+.zengrid-table thead tr {
+  background-color: #ebebeb;
 }
-.zengrid-table tbody tr td {
-  border-bottom: 1px solid #f0f0f0;
-}
-.zengrid-table tbody tr:last-child td {
-  border-bottom-width: 0;
+.zengrid-table tbody tr:nth-child(odd) {
+  background-color: #f5f5f5;
 }
 .zengrid-table tbody tr:hover {
   background-color: #eee;
@@ -92,7 +91,7 @@
               <a href="?{{grid.query|assign({order: '-' + c.key})|urlencode}}">{{c.label}}</a>
             {%- endif -%}
           {%- else -%}
-            {{c.label}}
+            {{c.label}}{{gridElement(c.children)}}
           {%- endif -%}
         </{{c.type}}>
       {% endfor -%}
@@ -102,13 +101,16 @@
     {% for i in grid.data -%}
       <tr>
         {%- for c in grid.head -%}
-          <td>
-            {%- if c.dataType == 'element' -%}
-              {{gridElement(i[c.key])}}
+          {%- if c.dataType == 'element' -%}
+            {%- set el = i[c.key] -%}
+            {%- if el|isarray -%}
+              <td>{{gridElement(el)}}</td>
             {%- else -%}
-              {{i[c.key]}}
+              <{{el.type}}{% for k, v in el.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>{{gridElement(el.children)}}</{{el.type}}>
             {%- endif -%}
-          </td>
+          {%- else -%}
+            <td>{{i[c.key]}}</td>
+          {%- endif -%}
         {%- endfor -%}
       </tr>
     {% else %}

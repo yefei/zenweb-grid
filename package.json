@@ -30,7 +30,7 @@
     "@zenweb/form": "^4.3.3",
     "@zenweb/mysql": "^3.5.2",
     "@zenweb/template": "^3.2.0",
-    "@zenweb/template-nunjucks": "^3.1.0",
+    "@zenweb/template-nunjucks": "^3.2.0",
     "cross-env": "^7.0.3",
     "moment": "^2.29.4",
     "rimraf": "^4.3.1",

@@ -6,7 +6,7 @@ import { Column, KEY_SPLITER } from "./column";
 import { Filter } from "./filter";
 import { FetchResult, FilterForm, Finder, DataRow } from "./types";
 import { propertyAt } from 'property-at';
-import { ColumnSelectList, PageResult } from './types';
+import { ColumnSelect, PageResult } from './types';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
 import { Element } from './element';
@@ -39,9 +39,17 @@ export class Grid<D extends DataRow = DataRow> {
   /**
    * 定义数据列
    * @param key 字段key 唯一
+   * @param select 检索字段
+   *  - 默认: 使用 key 检索
+   *  - false: 不检索
+   *  - ColumnSelect[]: 指定检索
    */
-  column(key: string) {
-    return this._columns[key] = new Column(key)
+  column(key: string, select?: false | ColumnSelect[]) {
+    const col = this._columns[key] = new Column(key);
+    if (select === false || select) {
+      col.select(false);
+    }
+    return col;
   }
 
   /**
@@ -200,12 +208,12 @@ export class Grid<D extends DataRow = DataRow> {
     }
 
     if (includes.includes(OutType.DATA)) {
-      const dbColumns: ColumnSelectList = [];
+      const dbColumns: ColumnSelect[] = [];
       for (const i of columnList) {
+        if (i._select === false) {
+          continue;
+        }
         if (i._select) {
-          if (i._select[0] === null) {
-            continue;
-          }
           dbColumns.push(...i._select);
         } else {
           dbColumns.push(i.key);

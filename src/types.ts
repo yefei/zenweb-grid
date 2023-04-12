@@ -4,7 +4,7 @@ import { JsonWhere } from 'sql-easy-builder';
 import { Element } from "./element";
 
 export type ColumnAs = { [key: string]: string };
-export type ColumnSelectList = (string | ColumnAs)[];
+export type ColumnSelect = string | ColumnAs;
 export type DataRow = { [key: string]: any };
 
 export interface Finder {
@@ -12,7 +12,7 @@ export interface Finder {
   limit(limit: number, offset: number): Finder;
   order(...columns: string[]): Finder;
   count(): Promise<number>;
-  all(...columns: ColumnSelectList): Promise<DataRow[]>;
+  all(...columns: ColumnSelect[]): Promise<DataRow[]>;
 }
 
 /**
