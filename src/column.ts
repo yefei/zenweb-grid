@@ -78,6 +78,7 @@ export class Column<D extends DataRow> extends Element {
    */
   data(callback: DataCallback<D>) {
     this._dataCallback = callback;
+    return this;
   }
 
   /**
@@ -88,6 +89,7 @@ export class Column<D extends DataRow> extends Element {
    */
   dataElement(callback: DataCallback<D, Element | Element[]>) {
     this._dataCallbackElement = callback;
+    return this;
   }
 
   /**
@@ -99,7 +101,8 @@ export class Column<D extends DataRow> extends Element {
       key: this.key,
       label: this._label,
       sortable: this._sortCallback !== undefined,
-      dataType: this._dataCallbackElement ? 'element' : 'data',
+      // hasData: this._select !== false,
+      // hasDataElement: !!this._dataCallbackElement,
       ...element,
     };
     return out;
@@ -112,6 +115,16 @@ export class Column<D extends DataRow> extends Element {
     if (this._dataCallback) {
       return await this._dataCallback(row);
     }
+    if (this._select === false) {
+      return;
+    }
+    return propertyAt(row, this.key.split(KEY_SPLITER));
+  }
+
+  /**
+   * 表数据元素输出
+   */
+  async dataElementOutput(row: D) {
     if (this._dataCallbackElement) {
       const _el = await this._dataCallbackElement(row);
       if (_el instanceof Element) {
@@ -130,6 +143,5 @@ export class Column<D extends DataRow> extends Element {
       }
       throw new Error(`dataElement callback result '${String(_el)}' is unknown`);
     }
-    return propertyAt(row, this.key.split(KEY_SPLITER));
   }
 }

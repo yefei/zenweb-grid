@@ -4,7 +4,7 @@ import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, KEY_SPLITER } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, FilterForm, Finder, DataRow } from "./types";
+import { FetchResult, FilterForm, Finder, DataRow, DataElementRow, DataCallback } from "./types";
 import { propertyAt } from 'property-at';
 import { ColumnSelect, PageResult } from './types';
 import { Context } from "@zenweb/core";
@@ -18,6 +18,8 @@ enum OutType {
   HEAD = 'head',
   PAGE = 'page',
   DATA = 'data',
+  DATA_ELEMENT = 'data-element',
+  ROW_ELEMENT = 'row-element',
   QUERY = 'query',
 };
 
@@ -32,6 +34,7 @@ export class Grid<D extends DataRow = DataRow> {
   private _order?: string;
   private _filters: { [key: string]: Filter } = {};
   private _filterFields: FormFields = {};
+  private _dataRowElementCallback?: DataCallback<D, Element>;
 
   @inject protected ctx!: Context;
   @inject protected cast!: TypeCastHelper;
@@ -89,6 +92,14 @@ export class Grid<D extends DataRow = DataRow> {
    */
   setOrder(column: string) {
     this._order = column;
+    return this;
+  }
+
+  /**
+   * 设置数据行元素处理 - tr
+   */
+  setDataRowElement(callback: DataCallback<D, Element>) {
+    this._dataRowElementCallback = callback;
     return this;
   }
 
@@ -207,7 +218,11 @@ export class Grid<D extends DataRow = DataRow> {
       result.page = page;
     }
 
-    if (includes.includes(OutType.DATA)) {
+    const hasData = includes.includes(OutType.DATA);
+    const hasDataElement = includes.includes(OutType.DATA_ELEMENT);
+    const hasRowElement = includes.includes(OutType.ROW_ELEMENT);
+    if (hasData || hasDataElement || hasRowElement) {
+      // 检出数据
       const dbColumns: ColumnSelect[] = [];
       for (const i of columnList) {
         if (i._select === false) {
@@ -220,20 +235,49 @@ export class Grid<D extends DataRow = DataRow> {
         }
       }
       const results = page.total ? <D[]> await finder.all(...dbColumns) : [];
-      // 处理结果行
-      result.data = [];
-      for (const row of results) {
-        const data: DataRow = {};
-        for (const col of columnList) {
-          const value = await col.dataOutput(row);
-          if (typeof value !== 'undefined') {
-            propertyAt(data, col.key.split(KEY_SPLITER), value);
-          }
+
+      // 数据行元素
+      if (hasRowElement && this._dataRowElementCallback) {
+        result.rowElement = [];
+        for (const row of results) {
+          const value = await this._dataRowElementCallback(row);
+          value.type('tr');
+          result.rowElement.push(value.output());
         }
-        result.data.push(data);
+      }
+
+      // 数据结果
+      if (hasData) {
+        // 处理结果行
+        result.data = [];
+        for (const row of results) {
+          const data: DataRow = {};
+          for (const col of columnList) {
+            const value = await col.dataOutput(row);
+            if (typeof value !== 'undefined') {
+              propertyAt(data, col.key.split(KEY_SPLITER), value);
+            }
+          }
+          result.data.push(data);
+        }
+      }
+
+      // 数据元素结果
+      if (hasDataElement) {
+        result.dataElement = [];
+        for (const row of results) {
+          const data: DataElementRow = {};
+          for (const col of columnList) {
+            const value = await col.dataElementOutput(row);
+            if (typeof value !== 'undefined') {
+              propertyAt(data, col.key.split(KEY_SPLITER), value);
+            }
+          }
+          result.dataElement.push(data);
+        }
       }
     }
-  
+
     return result;
   }
 }

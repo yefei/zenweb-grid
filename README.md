@@ -17,21 +17,6 @@
 $ npm i @zenweb/grid @zenweb/form
 ```
 
-## 数据格式说明
-
-### 请求格式
-
-```ts
-{
-  includes?: 'filter,head,page,data,query', // 返回时需要饱含的数据项, 如果无则返回所有项
-  limit?: 100, // 返回条数限制
-  offset?: 0, // 数据起始位置或使用 page 参数
-  page?: 1, // 第几页或使用 offset 参数
-  order?: '-id', // 排序规则， 字段名称, 负号开头则代表倒序，无开头正序
-  f_aaa?: '123', // 表单过滤字段
-}
-```
-
 ## 服务端 html 渲染
 
 ### 安装
@@ -90,7 +75,7 @@ class UserGrid extends GridBase<User> {
   setup() {
     this.column("id").label("ID").sortable().width(50);
 
-    this.column("name").label("姓名").width(100);
+    this.column("name").label("姓名").width(100).dataElement(row => this.createElement().style({ color: 'red' }));
 
     // this.column("profile.edu").label("教育");
 
@@ -103,7 +88,7 @@ class UserGrid extends GridBase<User> {
     // 自定义数据列元素
     this.column("auth", false).dataElement(row => this.createElement()
     .class('aaa', 'ccc', '', { bbb: true, ccc: false })
-    .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('数据列元素属性演示'));
+    .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('自定义数据列元素'));
 
     // 数据列子元素
     this.column("actions", false).dataElement(row => [
@@ -151,6 +136,10 @@ class UserGrid extends GridBase<User> {
 
     // 设置默认排序
     this.setOrder("-id");
+
+    // 自定义数据行元素
+    this.setDataRowElement(row => this.createElement()
+    .style({ backgroundColor: (row.id || 0) % 4 ? undefined : 'rgba(100, 0, 0, 0.2)' }));
   }
 }
 

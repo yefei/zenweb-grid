@@ -66,10 +66,16 @@
 {% macro gridScript(allow_external=true) %}
 {% endmacro %}
 
+{% macro gridAttrs(attrs) %}
+  {%- if attrs -%}
+    {%- for k, v in attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor -%}
+  {%- endif -%}
+{% endmacro %}
+
 {% macro gridElement(els) -%}
   {%- for e in els -%}
     {%- if e.type -%}
-      <{{e.type}}{% for k, v in e.attrs or {}|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>{{gridElement(e.children)}}</{{e.type}}>
+      <{{e.type}}{{gridAttrs(e.attrs)}}>{{gridElement(e.children)}}</{{e.type}}>
     {%- else -%}
       {{e}}
     {%- endif -%}
@@ -81,7 +87,7 @@
     <thead>
       <tr>
       {% for c in grid.head -%}
-        <{{c.type}}{% for k, v in c.attrs or {}|dictsort %} {{k}}="{{v|escape}}"{% endfor %}>
+        <{{c.type}}{{gridAttrs(c.attrs)}}>
           {%- if c.sortable -%}
             {%- if grid.page.order == '-' + c.key -%}
               <a href="?{{grid.query|assign({order: c.key})|urlencode}}">{{c.label}} ▼</a>
@@ -98,18 +104,21 @@
       </tr>
     </thead>
     <tbody>
-    {% for i in grid.data -%}
-      <tr>
-        {%- for c in grid.head -%}
-          {%- if c.dataType == 'element' -%}
-            {%- set el = i[c.key] -%}
-            {%- if el|isarray -%}
-              <td>{{gridElement(el)}}</td>
+    {% for _dataRow in grid.data -%}
+      {%- set _rowEl = grid.rowElement[loop.index0] -%}
+      {%- set _dataElRow = grid.dataElement[loop.index0] -%}
+      <tr{% if _rowEl %}{{gridAttrs(_rowEl.attrs)}}{% endif %}>
+        {%- for _col in grid.head -%}
+          {%- set _data = _dataRow[_col.key] -%}
+          {%- set _el = _dataElRow[_col.key] -%}
+          {%- if _el -%}
+            {%- if _el|isarray -%}
+              <td>{{_data}}{{gridElement(_el)}}</td>
             {%- else -%}
-              {{gridElement([el])}}
+              <{{_el.type}}{{gridAttrs(_el.attrs)}}>{{_data}}{{gridElement(_el.children)}}</{{_el.type}}>
             {%- endif -%}
           {%- else -%}
-            <td>{{i[c.key]}}</td>
+            <td>{{_data}}</td>
           {%- endif -%}
         {%- endfor -%}
       </tr>

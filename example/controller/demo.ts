@@ -17,7 +17,7 @@ class UserGrid extends GridBase<User> {
   setup() {
     this.column("id").label("ID").sortable().width(50);
 
-    this.column("name").label("姓名").width(100);
+    this.column("name").label("姓名").width(100).dataElement(row => this.createElement().style({ color: 'red' }));
 
     // this.column("profile.edu").label("教育");
 
@@ -30,7 +30,7 @@ class UserGrid extends GridBase<User> {
     // 自定义数据列元素
     this.column("auth", false).dataElement(row => this.createElement()
     .class('aaa', 'ccc', '', { bbb: true, ccc: false })
-    .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('数据列元素属性演示'));
+    .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('自定义数据列元素'));
 
     // 数据列子元素
     this.column("actions", false).dataElement(row => [
@@ -78,6 +78,10 @@ class UserGrid extends GridBase<User> {
 
     // 设置默认排序
     this.setOrder("-id");
+
+    // 自定义数据行元素
+    this.setDataRowElement(row => this.createElement()
+    .style({ backgroundColor: (row.id || 0) % 4 ? undefined : 'rgba(100, 0, 0, 0.2)' }));
   }
 }
 
