@@ -1,4 +1,4 @@
-import { FormFields, FormLayout } from "@zenweb/form";
+import { ErrorMessages, FormResult } from "@zenweb/form";
 import { PageResultWithOption } from "@zenweb/helper";
 import { JsonWhere } from 'sql-easy-builder';
 import { ElementResult } from "element-easy-builder";
@@ -54,15 +54,6 @@ export interface ColumnHeadResult extends ElementResult {
 }
 
 /**
- * 过滤表单结果
- */
-export interface FilterForm {
-  fields?: FormFields;
-  layout?: FormLayout[];
-  errors?: { [field: string]: string };
-}
-
-/**
  * 分页结果
  */
 export interface PageResult extends Omit<PageResultWithOption, 'order'> {
@@ -87,17 +78,22 @@ export interface FetchResult {
   /**
    * 过滤表单
    */
-  filterForm?: FilterForm;
+  filterForm?: FormResult;
 
   /**
    * 过滤表单输入数据结果
    */
-  filterData?: any;
+  filterData?: Record<string, any>;
 
   /**
    * 过滤表单输入数据
    */
-  filterInput?: any;
+  filterInput?: Record<string, any>;
+
+  /**
+   * 表单错误信息
+   */
+  filterErrors?: ErrorMessages;
 
   /**
    * 表头信息

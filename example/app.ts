@@ -1,6 +1,7 @@
 import { create } from 'zenweb';
 import modForm, { formTemplate } from '@zenweb/form';
 import modMySQL from '@zenweb/mysql';
+import modCors from '@zenweb/cors';
 import template from '@zenweb/template';
 import nunjucks from '@zenweb/template-nunjucks';
 import modGrid, { gridTemplate } from '../src';
@@ -11,6 +12,7 @@ create({
     discoverPaths: ['./controller']
   }
 })
+.setup(modCors({ origin: '*' }))
 .setup(modForm())
 .setup(modGrid())
 .setup(modMySQL({

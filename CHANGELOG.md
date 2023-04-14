@@ -1,6 +1,10 @@
 # Changelog
 
-## [4.2.0] - 2023-4-14
+## [4.3.0] - 2023-4-14
+- 适配: @zenweb/form@4.5.0
+- 修改: FetchType 区分 filter-form, filter-data, filter-input
+
+## [4.2.0] - 2023-4-13
 - 更新: 列元素自定义从 data 中分离为独立的 dataElement 列表，不影响原始数据输出
 - 新增: 支持数据行元素自定义
 

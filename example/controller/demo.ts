@@ -56,7 +56,7 @@ class UserGrid extends GridBase<User> {
     ][value]);
 
     this.filter("created_at", {
-      type: 'string',
+      type: 'string[]',
       widget: widgets.dateRange("注册日期").end(new Date().toDateString())
     }).where(value => ({ created_at: { $between: value } }));
 

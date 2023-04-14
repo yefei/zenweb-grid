@@ -4,7 +4,7 @@ import { TypeKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, KEY_SPLITER } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, FilterForm, Finder, DataRow, DataElementRow, DataCallback } from "./types";
+import { FetchResult, Finder, DataRow, DataElementRow, DataCallback } from "./types";
 import { propertyAt } from 'property-at';
 import { ColumnSelect, PageResult } from './types';
 import { Context } from "@zenweb/core";
@@ -13,8 +13,10 @@ import { Element } from 'element-easy-builder';
 
 const FILTER_PREFIX: string = 'f_';
 
-enum OutType {
-  FILTER = 'filter',
+enum FetchType {
+  FILTER_FORM = 'filter-form',
+  FILTER_DATA = 'filter-data',
+  FILTER_INPUT = 'filter-input',
   HEAD = 'head',
   PAGE = 'page',
   DATA = 'data',
@@ -23,7 +25,7 @@ enum OutType {
   QUERY = 'query',
 };
 
-const OutTypeValues = Object.values(OutType);
+const FetchTypeValues = Object.values(FetchType);
 
 /**
  * 使用依赖注入取得类实例
@@ -105,7 +107,6 @@ export class Grid<D extends DataRow = DataRow> {
 
   /**
    * 查询过滤
-   * @throws {FilterError}
    */
   private async _filterQuery(finder: Finder, query?: any) {
     if (!Object.keys(this._filterFields).length) {
@@ -161,21 +162,21 @@ export class Grid<D extends DataRow = DataRow> {
   /**
    * 返回结果包含的项
    * 如果没有指定则返回全部项
-   * includes=filter,columns,page,data
+   * fetch=filter,columns,page,data
    */
-  private _includeQuery(query?: any) {
-    const { includes } = this.cast.pick(query, {
-      includes: {
+  private _fetchQuery(query?: any) {
+    const { fetch } = this.cast.pick(query, {
+      fetch: {
         type: 'trim1[]',
         validate: {
-          in: OutTypeValues,
+          in: FetchTypeValues,
         }
       },
     });
-    if (includes && includes.length > 0) {
-      return includes as OutType[];
+    if (fetch && fetch.length > 0) {
+      return fetch as FetchType[];
     }
-    return OutTypeValues;
+    return FetchTypeValues;
   }
 
   /**
@@ -190,37 +191,46 @@ export class Grid<D extends DataRow = DataRow> {
     }
     const filter = await this._filterQuery(finder, query);
     const page = await this._pageQuery(finder, query);
-    const includes = this._includeQuery(query);
+    const fetchs = this._fetchQuery(query);
     const columnList = Object.values(this._columns);
     const result: FetchResult = {};
 
-    if (includes.includes(OutType.QUERY)) {
+    if (fetchs.includes(FetchType.QUERY)) {
       result.query = query;
     }
 
-    if (filter && includes.includes(OutType.FILTER)) {
-      result.filterData = Object.values(filter.data).length ? filter.data : undefined;
-      result.filterInput = {};
-      for (const k of Object.keys(this._filterFields)) {
-        result.filterInput[k] = query[k];
+    if (filter) {
+      if (fetchs.includes(FetchType.FILTER_FORM)) {
+        result.filterForm = filter.toJSON();
       }
-      result.filterForm = <FilterForm> filter.result;
+      if (fetchs.includes(FetchType.FILTER_DATA)) {
+        result.filterData = filter.data;
+      }
+      if (fetchs.includes(FetchType.FILTER_INPUT)) {
+        result.filterInput = {};
+        for (const k of Object.keys(this._filterFields)) {
+          result.filterInput[k] = query[k];
+        }
+      }
+      if (filter.hasErrors) {
+        result.filterErrors = filter.errorMessages;
+      }
     }
 
-    if (includes.includes(OutType.HEAD)) {
+    if (fetchs.includes(FetchType.HEAD)) {
       result.head = [];
       for (const col of columnList.filter(i => !i._hidden)) {
         result.head.push(await col.headOutput());
       }
     }
 
-    if (includes.includes(OutType.PAGE)) {
+    if (fetchs.includes(FetchType.PAGE)) {
       result.page = page;
     }
 
-    const hasData = includes.includes(OutType.DATA);
-    const hasDataElement = includes.includes(OutType.DATA_ELEMENT);
-    const hasRowElement = includes.includes(OutType.ROW_ELEMENT);
+    const hasData = fetchs.includes(FetchType.DATA);
+    const hasDataElement = fetchs.includes(FetchType.DATA_ELEMENT);
+    const hasRowElement = fetchs.includes(FetchType.ROW_ELEMENT);
     if (hasData || hasDataElement || hasRowElement) {
       // 检出数据
       const dbColumns: ColumnSelect[] = [];
