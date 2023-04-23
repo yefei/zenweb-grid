@@ -1,11 +1,14 @@
+import { Field } from '@zenweb/form';
 import { JsonWhere } from 'sql-easy-builder';
+import { CastAndListKeys } from 'typecasts';
 
 type WhereFunc = (value: any) => JsonWhere | undefined;
 
-export class Filter {
+export class Filter<T extends CastAndListKeys> extends Field<T> {
   private _whereFunc?: WhereFunc;
 
-  constructor(private _key: string) {
+  constructor(private _key: string, valueType: T) {
+    super(valueType);
   }
 
   where(func: WhereFunc) {

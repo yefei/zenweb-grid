@@ -1,6 +1,6 @@
 import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
-import { FormFields, FormBase, FieldOption } from "@zenweb/form";
-import { TypeKeys } from 'typecasts';
+import { FormBase } from "@zenweb/form";
+import { CastAndListKeys } from 'typecasts';
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, KEY_SPLITER } from "./column";
 import { Filter } from "./filter";
@@ -34,8 +34,7 @@ export class Grid<D extends DataRow = DataRow> {
   private _columns: { [key: string]: Column<D> } = {};
   private _pageLimit: PageLimitOption = {};
   private _order?: string;
-  private _filters: { [key: string]: Filter } = {};
-  private _filterFields: FormFields = {};
+  private _filters: { [key: string]: Filter<any> } = {};
   private _dataRowElementCallback?: DataCallback<D, Element>;
 
   @inject protected ctx!: Context;
@@ -71,12 +70,12 @@ export class Grid<D extends DataRow = DataRow> {
   /**
    * 定义过滤器
    * @param key 过滤器字段名
-   * @param field 字段
+   * @param valueType 值类型
    */
-  filter(key: string, field: FieldOption | TypeKeys) {
-    this._filters[key] = new Filter(key);
-    this._filterFields[FILTER_PREFIX + key] = field;
-    return this._filters[key];
+  filter<T extends CastAndListKeys>(key: string, valueType: T) {
+    const f = this._filters[FILTER_PREFIX + key] = new Filter<T>(key, valueType);
+    f.optional();
+    return f;
   }
 
   /**
@@ -109,17 +108,25 @@ export class Grid<D extends DataRow = DataRow> {
    * 查询过滤
    */
   private async _filterQuery(finder: Finder, query?: any) {
-    if (!Object.keys(this._filterFields).length) {
+    if (!Object.keys(this._filters).length) {
       return;
     }
 
-    class FilterForm extends FormBase(this._filterFields) {}
+    const gird = this;
+    class FilterForm extends FormBase {
+      setup() {
+        return gird._filters;
+      }
+    }
     const form = await this.ctx.injector.getInstance(FilterForm);
     query && await form.validate(query);
 
     const filterWheres: JsonWhere = {};
-    for (const [key, value] of Object.entries(form.data)) {
-      Object.assign(filterWheres, this._filters[key.slice(FILTER_PREFIX.length)].whereBuilder(value));
+    if (form.data) {
+      for (const [key, value] of Object.entries(form.data)) {
+        Object.assign(filterWheres, this._filters[key].whereBuilder(value));
+      }
+      console.log(filterWheres)
     }
 
     // 过滤
@@ -208,7 +215,7 @@ export class Grid<D extends DataRow = DataRow> {
       }
       if (fetchs.includes(FetchType.FILTER_INPUT)) {
         result.filterInput = {};
-        for (const k of Object.keys(this._filterFields)) {
+        for (const k of Object.keys(this._filters)) {
           result.filterInput[k] = query[k];
         }
       }

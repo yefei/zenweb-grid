@@ -1,6 +1,6 @@
 {
   "name": "@zenweb/grid",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -28,7 +28,7 @@
     "@zenorm/generate": "^1.4.0",
     "@zenorm/generate-mysql": "^1.2.0",
     "@zenweb/cors": "^2.4.0",
-    "@zenweb/form": "^4.5.0",
+    "@zenweb/form": "^5.1.0",
     "@zenweb/mysql": "^3.5.2",
     "@zenweb/template": "^3.2.0",
     "@zenweb/template-nunjucks": "^3.2.0",

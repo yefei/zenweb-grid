@@ -1,5 +1,8 @@
 # Changelog
 
+## [4.4.0] - 2023-4-23
+- 适配: @zenweb/form@5.1.0
+
 ## [4.3.0] - 2023-4-14
 - 适配: @zenweb/form@4.5.0
 - 修改: FetchType 区分 filter-form, filter-data, filter-input
