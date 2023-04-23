@@ -1,6 +1,5 @@
 import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
-import { FormBase } from "@zenweb/form";
-import { CastAndListKeys } from 'typecasts';
+import { Field, FormBase, FormFields } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
 import { Column, KEY_SPLITER } from "./column";
 import { Filter } from "./filter";
@@ -34,7 +33,7 @@ export class Grid<D extends DataRow = DataRow> {
   private _columns: { [key: string]: Column<D> } = {};
   private _pageLimit: PageLimitOption = {};
   private _order?: string;
-  private _filters: { [key: string]: Filter<any> } = {};
+  private _filters: { [key: string]: Filter } = {};
   private _dataRowElementCallback?: DataCallback<D, Element>;
 
   @inject protected ctx!: Context;
@@ -70,12 +69,10 @@ export class Grid<D extends DataRow = DataRow> {
   /**
    * 定义过滤器
    * @param key 过滤器字段名
-   * @param valueType 值类型
+   * @param field 表单字段
    */
-  filter<T extends CastAndListKeys>(key: string, valueType: T) {
-    const f = this._filters[FILTER_PREFIX + key] = new Filter<T>(key, valueType);
-    f.optional();
-    return f;
+  filter(key: string, field: Field<any>) {
+    return this._filters[FILTER_PREFIX + key] = new Filter(key, field);
   }
 
   /**
@@ -115,7 +112,11 @@ export class Grid<D extends DataRow = DataRow> {
     const gird = this;
     class FilterForm extends FormBase {
       setup() {
-        return gird._filters;
+        const fields: FormFields = {};
+        for (const [name, filter] of Object.entries(gird._filters)) {
+          fields[name] = filter.field;
+        }
+        return fields;
       }
     }
     const form = await this.ctx.injector.getInstance(FilterForm);

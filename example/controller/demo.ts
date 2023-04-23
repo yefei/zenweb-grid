@@ -1,5 +1,5 @@
 import { Context, mapping } from "zenweb";
-import { widgets } from '@zenweb/form';
+import { fields } from '@zenweb/form';
 import * as moment from 'moment';
 import { GridBase } from "../../src";
 import { User } from "../model";
@@ -38,35 +38,33 @@ class UserGrid extends GridBase<User> {
     ]);
 
     // 数据过滤器定义
-    this.filter("age", 'int').where(value => [
-      { birthday: ageRange(0, 18) },
-      { birthday: ageRange(18, 40) },
-      { birthday: ageRange(18, 40) },
-      { birthday: ageRange(40, 55) },
-      { birthday: ageRange(55, 100) },
-    ][value]).widget(widgets.select("年龄段").choices([
+    this.filter("age", fields.select('int').label("年龄段").choices([
       { label: "毛蛋", value: 0 },
       { label: "少年", value: 1 },
       { label: "壮年", value: 2 },
       { label: "中年", value: 3 },
       { label: "老年", value: 4 },
-    ]));
+    ])).where(value => [
+      { birthday: ageRange(0, 18) },
+      { birthday: ageRange(18, 40) },
+      { birthday: ageRange(18, 40) },
+      { birthday: ageRange(40, 55) },
+      { birthday: ageRange(55, 100) },
+    ][value]);
 
-    this.filter("created_at", 'trim1[]')
-    .where(value => ({ created_at: { $between: value } }))
-    .widget(widgets.dateRange("注册日期").end(new Date().toDateString()));
+    this.filter("created_at", fields.dateRange('date[]').label("注册日期").end(new Date()))
+    .where(value => ({ created_at: { $between: value } }));
 
-    this.filter("search", 'trim1')
-    .where((value) => ({ name: { $like: `%${value}%` } }))
-    .widget(widgets.text("关键词搜索"));
+    this.filter("search", fields.text('trim1').label("关键词搜索"))
+    .where((value) => ({ name: { $like: `%${value}%` } }));
 
-    this.filter("cas", 'int').where(() => {
-      console.log('查询处理');
-      return {};
-    }).widget(widgets.cascader("级连选择").choices([
+    this.filter("cas", fields.cascader('int').label("级连选择").choices([
       { label: "第一层", value: 1 },
       { label: "第二层", value: 2, parent: 1 },
-    ]));
+    ])).where(() => {
+      console.log('查询处理');
+      return {};
+    });
 
     // 设置默认排序
     this.setOrder("-id");
@@ -95,5 +93,10 @@ export class DemoController {
   @mapping()
   async grid(grid: UserGrid) {
     return await grid.fetch(User.find());
+  }
+
+  @mapping()
+  test() {
+    return User.find().limit(10).all();
   }
 }

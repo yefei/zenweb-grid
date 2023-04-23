@@ -167,7 +167,7 @@
   <div class="zengrid-filter">
     <form>
       <input type="hidden" name="limit" value="{{grid.page.limit}}" />
-      {{formFields(grid.filterForm, grid.filterInput)}}
+      {{formFields(grid.filterForm, grid.filterInput, grid.filterErrors)}}
       <div class="zengrid-filter-footer">
         {% if grid.filterData %}
           <a href="?limit={{grid.page.limit}}">取消过滤</a>
