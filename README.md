@@ -96,16 +96,13 @@ class UserGrid extends GridBase<User> {
     ]);
 
     // 数据过滤器定义
-    this.filter("age", {
-      type: 'int',
-      widget: widgets.select("年龄段").choices([
-        { label: "毛蛋", value: 0 },
-        { label: "少年", value: 1 },
-        { label: "壮年", value: 2 },
-        { label: "中年", value: 3 },
-        { label: "老年", value: 4 },
-      ]),
-    }).where(value => [
+    this.filter("age", fields.select('int').label("年龄段").choices([
+      { label: "毛蛋", value: 0 },
+      { label: "少年", value: 1 },
+      { label: "壮年", value: 2 },
+      { label: "中年", value: 3 },
+      { label: "老年", value: 4 },
+    ])).where(value => [
       { birthday: ageRange(0, 18) },
       { birthday: ageRange(18, 40) },
       { birthday: ageRange(18, 40) },
@@ -113,23 +110,16 @@ class UserGrid extends GridBase<User> {
       { birthday: ageRange(55, 100) },
     ][value]);
 
-    this.filter("created_at", {
-      type: 'string[]',
-      widget: widgets.dateRange("注册日期").end(new Date().toDateString())
-    }).where(value => ({ created_at: { $between: value } }));
+    this.filter("created_at", fields.dateRange('date[]').label("注册日期").end(new Date()))
+    .where(value => ({ created_at: { $between: value } }));
 
-    this.filter("search", {
-      type: 'trim1',
-      widget: widgets.text("关键词搜索")
-    }).where((value) => ({ name: { $like: `%${value}%` } }));
+    this.filter("search", fields.text('trim1').label("关键词搜索"))
+    .where((value) => ({ name: { $like: `%${value}%` } }));
 
-    this.filter("cas", {
-      type: 'int',
-      widget: widgets.cascader("级连选择").choices([
-        { label: "第一层", value: 1 },
-        { label: "第二层", value: 2, parent: 1 },
-      ])
-    }).where(() => {
+    this.filter("cas", fields.cascader('int').label("级连选择").choices([
+      { label: "第一层", value: 1 },
+      { label: "第二层", value: 2, parent: 1 },
+    ])).where(() => {
       console.log('查询处理');
       return {};
     });
