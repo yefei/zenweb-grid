@@ -21,7 +21,7 @@ class UserGrid extends GridBase<User> {
 
     // this.column("profile.edu").label("教育");
 
-    this.column("birthday").label("生日").width(100).data(row =>
+    this.column("birthday").label("生日").width(150).data(row =>
       row.birthday ? moment(row.birthday).format("YYYY-MM-DD") : "无"
     );
 
