@@ -127,7 +127,6 @@ export class Grid<D extends DataRow = DataRow> {
       for (const [key, value] of Object.entries(form.data)) {
         Object.assign(filterWheres, this._filters[key].whereBuilder(value));
       }
-      console.log(filterWheres)
     }
 
     // 过滤

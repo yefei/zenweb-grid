@@ -1,5 +1,8 @@
 # Changelog
 
+## [4.6.1] - 2023-5-18
+- fix: console.log
+
 ## [4.6.0] - 2023-5-17
 - 使用 Bootstrap 样式
 
