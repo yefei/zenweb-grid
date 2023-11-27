@@ -87,7 +87,7 @@ export class Column<D extends DataRow> extends Element {
    *  - 如果回调返回 Element 则为 td 项
    *  - 如果回调返回 Element[] 则为 td 项的子元素
    */
-  dataElement(callback: DataCallback<D, Element | Element[]>) {
+  element(callback: DataCallback<D, Element | Element[]>) {
     this._dataCallbackElement = callback;
     return this;
   }
@@ -124,7 +124,7 @@ export class Column<D extends DataRow> extends Element {
   /**
    * 表数据元素输出
    */
-  async dataElementOutput(row: D) {
+  async elementOutput(row: D) {
     if (this._dataCallbackElement) {
       const _el = await this._dataCallbackElement(row);
       if (_el instanceof Element) {

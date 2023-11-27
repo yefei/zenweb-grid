@@ -49,16 +49,15 @@
       {%- set _dataElRow = grid.dataElement[loop.index0] -%}
       <tr{% if _rowEl %}{{gridAttrs(_rowEl.attrs)}}{% endif %}>
         {%- for _col in grid.head -%}
-          {%- set _data = _dataRow[_col.key] -%}
-          {%- set _el = _dataElRow[_col.key] -%}
+          {%- set _el = _dataRow[_col.key + '@el'] -%}
           {%- if _el -%}
             {%- if _el|isarray -%}
-              <td>{{_data}}{{gridElement(_el)}}</td>
+              <td>{{gridElement(_el)}}</td>
             {%- else -%}
-              <{{_el.type}}{{gridAttrs(_el.attrs)}}>{{_data}}{{gridElement(_el.children)}}</{{_el.type}}>
+              <{{_el.type}}{{gridAttrs(_el.attrs)}}>{{gridElement(_el.children)}}</{{_el.type}}>
             {%- endif -%}
           {%- else -%}
-            <td>{{_data}}</td>
+            <td>{{_dataRow[_col.key]}}</td>
           {%- endif -%}
         {%- endfor -%}
       </tr>

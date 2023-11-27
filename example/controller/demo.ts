@@ -17,9 +17,10 @@ class UserGrid extends GridBase<User> {
   setup() {
     this.column("id").label("ID").sortable().width(50);
 
-    this.column("name").label("姓名").width(100).dataElement(row => this.createElement().style({ color: 'red' }));
+    this.column("name").label("姓名").width(100).element(row =>
+      this.createElement().style({ color: 'red' }).append(row.name));
 
-    // this.column("profile.edu").label("教育");
+    this.column("profile.edu").label("教育");
 
     this.column("birthday").label("生日").width(150).data(row =>
       row.birthday ? moment(row.birthday).format("YYYY-MM-DD") : "无"
@@ -28,12 +29,12 @@ class UserGrid extends GridBase<User> {
     this.column("created_at").label("注册日期").sortable().data(row => moment(row.created_at).format("YYYY/M/D H:mm"));
 
     // 自定义数据列元素
-    this.column("auth", false).dataElement(row => this.createElement()
+    this.column("auth", false).element(row => this.createElement()
     .class('aaa', 'ccc', '', { bbb: true, ccc: false })
     .style({ backgroundColor: 'rgba(75,173,58,0.30)' }).append('自定义数据列元素'));
 
     // 数据列子元素
-    this.column("actions", false).dataElement(row => [
+    this.column("actions", false).element(row => [
       this.createElement('a').attr('href', `/edit/${row.id}`).append('编辑'),
     ]);
 
@@ -83,7 +84,7 @@ export class DemoController {
   async index(ctx: Context, grid: UserGrid) {
     ctx.template('grid.html.njk');
     return {
-      grid: await grid.fetch(User.find()),
+      grid: await grid.fetch(User.find().join('profile')),
     };
   }
 
@@ -92,7 +93,7 @@ export class DemoController {
    */
   @mapping()
   async grid(grid: UserGrid) {
-    return await grid.fetch(User.find());
+    return await grid.fetch(User.find().join('profile'));
   }
 
   @mapping()

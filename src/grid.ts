@@ -1,10 +1,9 @@
 import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
 import { Field, FormBase, FormFields } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
-import { Column, KEY_SPLITER } from "./column";
+import { Column } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, Finder, DataRow, DataElementRow, DataCallback } from "./types";
-import { propertyAt } from 'property-at';
+import { FetchResult, Finder, DataRow, DataCallback } from "./types";
 import { ColumnSelect, PageResult } from './types';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
@@ -19,7 +18,6 @@ enum FetchType {
   HEAD = 'head',
   PAGE = 'page',
   DATA = 'data',
-  DATA_ELEMENT = 'data-element',
   ROW_ELEMENT = 'row-element',
   QUERY = 'query',
 };
@@ -120,7 +118,7 @@ export class Grid<D extends DataRow = DataRow> {
       }
     }
     const form = await this.ctx.injector.getInstance(FilterForm);
-    query && await form.validate(query);
+    await form.validate(query);
 
     const filterWheres: JsonWhere = {};
     if (form.data) {
@@ -236,9 +234,8 @@ export class Grid<D extends DataRow = DataRow> {
     }
 
     const hasData = fetchs.includes(FetchType.DATA);
-    const hasDataElement = fetchs.includes(FetchType.DATA_ELEMENT);
     const hasRowElement = fetchs.includes(FetchType.ROW_ELEMENT);
-    if (hasData || hasDataElement || hasRowElement) {
+    if (hasData || hasRowElement) {
       // 检出数据
       const dbColumns: ColumnSelect[] = [];
       for (const i of columnList) {
@@ -270,27 +267,18 @@ export class Grid<D extends DataRow = DataRow> {
         for (const row of results) {
           const data: DataRow = {};
           for (const col of columnList) {
-            const value = await col.dataOutput(row);
-            if (typeof value !== 'undefined') {
-              propertyAt(data, col.key.split(KEY_SPLITER), value);
+            // 列自定义元素，追加 @el 用以区分是否为自定义元素
+            const el = await col.elementOutput(row);
+            if (typeof el !== 'undefined') {
+              data[col.key + '@el'] = el;
+            } else {
+              const value = await col.dataOutput(row);
+              if (typeof value !== 'undefined') {
+                data[col.key] = value;
+              }
             }
           }
           result.data.push(data);
-        }
-      }
-
-      // 数据元素结果
-      if (hasDataElement) {
-        result.dataElement = [];
-        for (const row of results) {
-          const data: DataElementRow = {};
-          for (const col of columnList) {
-            const value = await col.dataElementOutput(row);
-            if (typeof value !== 'undefined') {
-              propertyAt(data, col.key.split(KEY_SPLITER), value);
-            }
-          }
-          result.dataElement.push(data);
         }
       }
     }

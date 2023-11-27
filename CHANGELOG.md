@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.7.0] - 2023-5-18
+- dataElement 改名 element
+- . 分割列不进行拆分
+- element 列只输出 element, 并且在 data 中追加 @el 用以区分是否为 element 类型
+
 ## [4.6.1] - 2023-5-18
 - fix: console.log
 
