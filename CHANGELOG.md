@@ -1,6 +1,11 @@
 # Changelog
 
-## [4.7.0] - 2023-5-18
+## [4.8.0] - 2023-11-28
+- element 输出结果不再处理 style
+- element 回调增加 td 实例参数
+- elementRow 合并入 data 中使用 @el 命名
+
+## [4.7.0] - 2023-11-27
 - dataElement 改名 element
 - . 分割列不进行拆分
 - element 列只输出 element, 并且在 data 中追加 @el 用以区分是否为 element 类型

@@ -3,7 +3,7 @@ import { Field, FormBase, FormFields } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
 import { Column } from "./column";
 import { Filter } from "./filter";
-import { FetchResult, Finder, DataRow, DataCallback } from "./types";
+import { FetchResult, Finder, DataRow, RowElementCallback } from "./types";
 import { ColumnSelect, PageResult } from './types';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
@@ -18,7 +18,6 @@ enum FetchType {
   HEAD = 'head',
   PAGE = 'page',
   DATA = 'data',
-  ROW_ELEMENT = 'row-element',
   QUERY = 'query',
 };
 
@@ -32,7 +31,7 @@ export class Grid<D extends DataRow = DataRow> {
   private _pageLimit: PageLimitOption = {};
   private _order?: string;
   private _filters: { [key: string]: Filter } = {};
-  private _dataRowElementCallback?: DataCallback<D, Element>;
+  private _rowElementCallback?: RowElementCallback<D>;
 
   @inject protected ctx!: Context;
   @inject protected cast!: TypeCastHelper;
@@ -94,8 +93,8 @@ export class Grid<D extends DataRow = DataRow> {
   /**
    * 设置数据行元素处理 - tr
    */
-  setDataRowElement(callback: DataCallback<D, Element>) {
-    this._dataRowElementCallback = callback;
+  rowElement(callback: RowElementCallback<D>) {
+    this._rowElementCallback = callback;
     return this;
   }
 
@@ -225,7 +224,7 @@ export class Grid<D extends DataRow = DataRow> {
     if (fetchs.includes(FetchType.HEAD)) {
       result.head = [];
       for (const col of columnList.filter(i => !i._hidden)) {
-        result.head.push(await col.headOutput());
+        result.head.push(await col._headOutput());
       }
     }
 
@@ -234,8 +233,7 @@ export class Grid<D extends DataRow = DataRow> {
     }
 
     const hasData = fetchs.includes(FetchType.DATA);
-    const hasRowElement = fetchs.includes(FetchType.ROW_ELEMENT);
-    if (hasData || hasRowElement) {
+    if (hasData) {
       // 检出数据
       const dbColumns: ColumnSelect[] = [];
       for (const i of columnList) {
@@ -250,16 +248,6 @@ export class Grid<D extends DataRow = DataRow> {
       }
       const results = page.total ? <D[]> await finder.all(...dbColumns) : [];
 
-      // 数据行元素
-      if (hasRowElement && this._dataRowElementCallback) {
-        result.rowElement = [];
-        for (const row of results) {
-          const value = await this._dataRowElementCallback(row);
-          value.type('tr');
-          result.rowElement.push(value.output());
-        }
-      }
-
       // 数据结果
       if (hasData) {
         // 处理结果行
@@ -267,16 +255,22 @@ export class Grid<D extends DataRow = DataRow> {
         for (const row of results) {
           const data: DataRow = {};
           for (const col of columnList) {
+            // 结果
+            const value = await col._dataOutput(row);
+            if (typeof value !== 'undefined') {
+              data[col.key] = value;
+            }
             // 列自定义元素，追加 @el 用以区分是否为自定义元素
-            const el = await col.elementOutput(row);
+            const el = await col._elementOutput(row);
             if (typeof el !== 'undefined') {
               data[col.key + '@el'] = el;
-            } else {
-              const value = await col.dataOutput(row);
-              if (typeof value !== 'undefined') {
-                data[col.key] = value;
-              }
             }
+          }
+          // 自定义行元素
+          if (this._rowElementCallback) {
+            const _tr = this.createElement('tr');
+            await this._rowElementCallback(row, _tr);
+            data['@el'] = _tr.output();
           }
           result.data.push(data);
         }

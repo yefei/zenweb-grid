@@ -1,6 +1,6 @@
 import { propertyAt } from 'property-at';
-import { Element, ElementAttrValue, ElementResult } from 'element-easy-builder';
-import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, SortCallback } from './types';
+import { Element, ElementAttrValue } from 'element-easy-builder';
+import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, ColumnElementCallback, SortCallback } from './types';
 
 export const KEY_SPLITER = '.';
 
@@ -8,7 +8,7 @@ export class Column<D extends DataRow> extends Element {
   _label?: string;
   _select?: ColumnSelect[] | false;
   _dataCallback?: DataCallback<D>;
-  _dataCallbackElement?: DataCallback<D, Element | Element[]>;
+  _columnElementCallback?: ColumnElementCallback<D>;
   _hidden?: boolean;
   _sortCallback?: SortCallback;
 
@@ -74,7 +74,7 @@ export class Column<D extends DataRow> extends Element {
 
   /**
    * 自定义数据结果
-   * @param callback 回调函数
+   * @param callback 行回调
    */
   data(callback: DataCallback<D>) {
     this._dataCallback = callback;
@@ -83,26 +83,22 @@ export class Column<D extends DataRow> extends Element {
 
   /**
    * 自定义数据结果元素
-   * @param callback 回调函数
-   *  - 如果回调返回 Element 则为 td 项
-   *  - 如果回调返回 Element[] 则为 td 项的子元素
+   * @param callback 行回调
    */
-  element(callback: DataCallback<D, Element | Element[]>) {
-    this._dataCallbackElement = callback;
+  element(callback: ColumnElementCallback<D>) {
+    this._columnElementCallback = callback;
     return this;
   }
 
   /**
    * 表头输出
    */
-  async headOutput() {
+  async _headOutput() {
     const element = this.output();
     const out: ColumnHeadResult = {
       key: this.key,
       label: this._label,
       sortable: this._sortCallback !== undefined,
-      // hasData: this._select !== false,
-      // hasDataElement: !!this._dataCallbackElement,
       ...element,
     };
     return out;
@@ -111,7 +107,7 @@ export class Column<D extends DataRow> extends Element {
   /**
    * 表数据输出
    */
-  async dataOutput(row: D) {
+  async _dataOutput(row: D) {
     if (this._dataCallback) {
       return await this._dataCallback(row);
     }
@@ -124,24 +120,14 @@ export class Column<D extends DataRow> extends Element {
   /**
    * 表数据元素输出
    */
-  async elementOutput(row: D) {
-    if (this._dataCallbackElement) {
-      const _el = await this._dataCallbackElement(row);
-      if (_el instanceof Element) {
-        // 表格数据根元素只允许 td, th
-        if (!['td', 'th'].includes(_el._type)) {
-          _el.type('td');
-        }
-        return _el.output();
+  async _elementOutput(row: D) {
+    if (this._columnElementCallback) {
+      const _td = new Element().type('td');
+      const _res = await this._columnElementCallback(row, _td);
+      if (_res) {
+        _td.append(_res);
       }
-      if (Array.isArray(_el)) {
-        const child: ElementResult[] = [];
-        for (const el of _el) {
-          child.push(el.output());
-        }
-        return child;
-      }
-      throw new Error(`dataElement callback result '${String(_el)}' is unknown`);
+      return _td.output();
     }
   }
 }

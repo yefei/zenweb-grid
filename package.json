@@ -1,6 +1,6 @@
 {
   "name": "@zenweb/grid",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,7 +31,7 @@
     "@zenweb/form": "^5.4.0",
     "@zenweb/mysql": "^3.6.1",
     "@zenweb/template": "^3.2.0",
-    "@zenweb/template-nunjucks": "^3.2.0",
+    "@zenweb/template-nunjucks": "^3.3.0",
     "cross-env": "^7.0.3",
     "moment": "^2.29.4",
     "rimraf": "^4.3.1",
@@ -41,7 +41,7 @@
     "zenweb": "^3.29.0"
   },
   "dependencies": {
-    "element-easy-builder": "^1.0.3",
+    "element-easy-builder": "^1.2.0",
     "property-at": "^1.0.1"
   }
 }

@@ -1,7 +1,7 @@
 import { ErrorMessages, FormResult } from "@zenweb/form";
 import { PageResultWithOption } from "@zenweb/helper";
 import { JsonWhere } from 'sql-easy-builder';
-import { ElementResult } from "element-easy-builder";
+import { Element, ElementChildType, ElementResult } from "element-easy-builder";
 
 /**
  * 数据库列别名
@@ -34,6 +34,20 @@ export interface Finder {
  * @param row 行结果
  */
 export type DataCallback<T, R = any> = (row: T) => R | Promise<R>;
+
+/**
+ * 自定义列元素结果回调
+ * @param row 行结果
+ * @param td 元素实例
+ */
+export type ColumnElementCallback<T, R = ElementChildType | ElementChildType[] | void> = (row: T, td: Element) => R | Promise<R>;
+
+/**
+ * 自定义行元素回调
+ * @param row 行结果
+ * @param tr 元素实例
+ */
+export type RowElementCallback<T, R = any> = (row: T, tr: Element) => R | Promise<R>;
 
 /**
  * 排序方法回调函数

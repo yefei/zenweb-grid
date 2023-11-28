@@ -6,16 +6,18 @@
 {% macro gridScript(allow_external=true) %}
 {% endmacro %}
 
-{% macro gridAttrs(attrs) %}
-  {%- if attrs -%}
-    {%- for k, v in attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor -%}
+{% macro gridAttrs(e) %}
+  {%- if e.class %} class="{{e.class|escape}}"{% endif %}
+  {%- if e.style %} style="{{e.style|style|escape}}"{% endif %}
+  {%- if e.attrs -%}
+    {%- for k, v in e.attrs|dictsort %} {{k}}="{{v|escape}}"{% endfor -%}
   {%- endif -%}
 {% endmacro %}
 
 {% macro gridElement(els) -%}
   {%- for e in els -%}
     {%- if e.type -%}
-      <{{e.type}}{{gridAttrs(e.attrs)}}>{{gridElement(e.children)}}</{{e.type}}>
+      <{{e.type}}{{gridAttrs(e)}}>{{gridElement(e.children)}}</{{e.type}}>
     {%- else -%}
       {{e}}
     {%- endif -%}
@@ -27,7 +29,7 @@
     <thead>
       <tr>
       {% for c in grid.head -%}
-        <{{c.type}}{{gridAttrs(c.attrs)}}>
+        <{{c.type}}{{gridAttrs(c)}}>
           {%- if c.sortable -%}
             {%- if grid.page.order == '-' + c.key -%}
               <a href="?{{grid.query|assign({order: c.key})|urlencode}}">{{c.label}} ▼</a>
@@ -45,22 +47,18 @@
     </thead>
     <tbody>
     {% for _dataRow in grid.data -%}
-      {%- set _rowEl = grid.rowElement[loop.index0] -%}
+      {%- set _rowEl = _dataRow['@el'] -%}
       {%- set _dataElRow = grid.dataElement[loop.index0] -%}
-      <tr{% if _rowEl %}{{gridAttrs(_rowEl.attrs)}}{% endif %}>
+      <{% if _rowEl %}{{_rowEl.type}} {{- gridAttrs(_rowEl)}}{% else %}tr{% endif %}>
         {%- for _col in grid.head -%}
           {%- set _el = _dataRow[_col.key + '@el'] -%}
           {%- if _el -%}
-            {%- if _el|isarray -%}
-              <td>{{gridElement(_el)}}</td>
-            {%- else -%}
-              <{{_el.type}}{{gridAttrs(_el.attrs)}}>{{gridElement(_el.children)}}</{{_el.type}}>
-            {%- endif -%}
+            <{{_el.type}}{{gridAttrs(_el)}}>{{gridElement(_el.children)}}</{{_el.type}}>
           {%- else -%}
             <td>{{_dataRow[_col.key]}}</td>
           {%- endif -%}
         {%- endfor -%}
-      </tr>
+      </{% if _rowEl %}{{_rowEl.type}}{% else %}tr{% endif %}>
     {% else %}
       <tr>
         <td colspan="{{grid.head|length}}" class="text-center p-3">- 无结果 -</td>
