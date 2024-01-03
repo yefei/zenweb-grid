@@ -8,3 +8,6 @@ yarn.lock
 *.un~
 .npmrc
 dist/
+.vscode/
+.yarn/
+.pnp.*
