@@ -1,7 +1,7 @@
 {
   "name": "@zenweb/grid",
   "packageManager": "yarn@4.0.2",
-  "version": "4.8.1",
+  "version": "4.8.2",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,7 +12,7 @@
   "scripts": {
     "vscode": "yarn dlx @yarnpkg/sdks vscode",
     "build": "rimraf dist && tsc",
-    "prepublishOnly": "yarn run build",
+    "prepack": "yarn run build",
     "dbgen": "cd example && zenorm-generate .dbgen.json",
     "dev": "cd example && cross-env DEBUG=\\* NODE_ENV=development ts-node app"
   },
@@ -39,16 +39,16 @@
     "moment": "^2.29.4",
     "rimraf": "^4.3.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.3.3",
+    "typescript": "~5.3.3",
     "zenorm": "^3.34.1",
     "zenweb": "^4.2.7"
   },
   "dependencies": {
-    "@zenweb/core": "^4.2.1",
-    "@zenweb/helper": "^4.1.10",
-    "@zenweb/inject": "^4.0.6",
+    "@zenweb/core": "^4.3.2",
+    "@zenweb/helper": "^4.2.0",
+    "@zenweb/inject": "^4.1.1",
     "element-easy-builder": "^1.2.0",
     "property-at": "^1.0.1",
-    "sql-easy-builder": "^2.14.1"
+    "sql-easy-builder": "^2.16.0"
   }
 }

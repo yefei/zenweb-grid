@@ -39,17 +39,9 @@ export class Grid<D extends DataRow = DataRow> {
   /**
    * 定义数据列
    * @param key 字段key 唯一
-   * @param select 检索字段
-   *  - 默认: 使用 key 检索
-   *  - false: 不检索
-   *  - ColumnSelect[]: 指定检索
    */
-  column(key: string, select?: false | ColumnSelect[]) {
-    const col = this._columns[key] = new Column(key);
-    if (select === false || select) {
-      col.select(false);
-    }
-    return col;
+  column(key: string) {
+    return this._columns[key] = new Column(key);
   }
 
   /**

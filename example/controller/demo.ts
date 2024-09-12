@@ -31,7 +31,7 @@ class UserGrid extends GridBase<User> {
     this.column("created_at").label("注册日期").sortable().data(row => moment(row.created_at).format("YYYY/M/D H:mm"));
 
     // 自定义数据列元素
-    this.column("auth", false).element((row, td) => {
+    this.column("auth").select(false).element((row, td) => {
       td.class('aaa', 'ccc', '', { bbb: true, ccc: false }).style({ backgroundColor: 'rgba(75,173,58,0.30)' });
       return [
         '自定义数据列元素',
@@ -40,7 +40,7 @@ class UserGrid extends GridBase<User> {
     });
 
     // 数据列子元素
-    this.column("actions", false).element(row => [
+    this.column("actions").select(false).element(row => [
       this.createElement('a').attr('href', `/edit/${row.id}`).append('编辑'),
     ]);
 

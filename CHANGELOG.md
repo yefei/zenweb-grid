@@ -1,5 +1,8 @@
 # Changelog
 
+## [4.8.2] - 2024-9-12
+- update: Grid.column 检索参数无效问题，删除检索参数，使用 .select() 方法
+
 ## [4.8.0] - 2023-11-28
 - element 输出结果不再处理 style
 - element 回调增加 td 实例参数
