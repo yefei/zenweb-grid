@@ -1,10 +1,10 @@
 import { PageLimitOption, PageOption, TypeCastHelper } from '@zenweb/helper';
 import { Field, FormBase, FormFields } from "@zenweb/form";
 import { JsonWhere } from 'sql-easy-builder';
-import { Column } from "./column";
-import { Filter } from "./filter";
-import { FetchResult, Finder, DataRow, RowElementCallback } from "./types";
-import { ColumnSelect, PageResult } from './types';
+import { Column } from "./column.js";
+import { Filter } from "./filter.js";
+import { FetchResult, Finder, DataRow, RowElementCallback } from "./types.js";
+import { ColumnSelect, PageResult } from './types.js';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
 import { Element } from 'element-easy-builder';

@@ -1,7 +1,11 @@
-import * as path from 'path';
+import path from 'node:path';
 import { SetupFunction } from '@zenweb/core';
-export { Grid, GridBase } from './grid';
-export * from './types';
+import { fileURLToPath } from 'node:url';
+
+export { Grid, GridBase } from './grid.js';
+export * from './types.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * grid html template library

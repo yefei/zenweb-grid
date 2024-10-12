@@ -4,8 +4,8 @@ import modMySQL from '@zenweb/mysql';
 import modCors from '@zenweb/cors';
 import template from '@zenweb/template';
 import nunjucks from '@zenweb/template-nunjucks';
-import modGrid, { gridTemplate } from '../src';
-import { bindQuery } from './model';
+import modGrid, { gridTemplate } from '../src/index.js';
+import { bindQuery } from './model/index.js';
 
 create({
   controller: {

@@ -1,6 +1,6 @@
 import { join, model } from 'zenorm';
-import { UserTable } from './_tables';
-import Profile from './profile';
+import { UserTable } from './_tables.js';
+import Profile from './profile.js';
 
 @model({
   pk: 'id',

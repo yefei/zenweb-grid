@@ -1,6 +1,6 @@
 // zenorm 自动生成文件
 // 请不要修改此文件，因为此文件在每次重新生成数据库结构时会被覆盖
-// create at: 2023/4/23 18:11:01
+// create at: 2024/10/12 09:46:26
 // create by: yefei@-
 // database: zenorm_test
 
@@ -28,6 +28,10 @@ export class MessageTable {
    * default: null
    */
   content?: string | null;
+
+  constructor(data?: object) {
+    data && Object.assign(this, data);
+  }
 }
 
 export class NonautopkTable {
@@ -46,6 +50,10 @@ export class NonautopkTable {
    * default: null
    */
   name?: string | null;
+
+  constructor(data?: object) {
+    data && Object.assign(this, data);
+  }
 }
 
 export class ProfileTable {
@@ -79,6 +87,10 @@ export class ProfileTable {
    * default: null
    */
   work?: string | null;
+
+  constructor(data?: object) {
+    data && Object.assign(this, data);
+  }
 }
 
 export class UserTable {
@@ -141,4 +153,8 @@ export class UserTable {
    * extra: on update CURRENT_TIMESTAMP
    */
   updated_at?: Date;
+
+  constructor(data?: object) {
+    data && Object.assign(this, data);
+  }
 }

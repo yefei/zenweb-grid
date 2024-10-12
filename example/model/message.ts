@@ -1,5 +1,5 @@
 import { model } from 'zenorm';
-import { MessageTable } from './_tables';
+import { MessageTable } from './_tables.js';
 
 @model({
   pk: 'id',

@@ -1,8 +1,8 @@
 import { Context, mapping } from "zenweb";
 import { fields } from '@zenweb/form';
-import * as moment from 'moment';
-import { GridBase } from "../../src";
-import { User } from "../model";
+import moment from 'moment';
+import { GridBase } from "../../src/index.js";
+import { User } from "../model/index.js";
 
 function ageRange(min: number, max: number) {
   return {

@@ -2,12 +2,10 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "ES2019",
-    "lib": [
-      "ES2019"
-    ],
-    "module": "commonjs",
-    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": [ "ES2022" ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "declaration": true,
     "outDir": "dist"

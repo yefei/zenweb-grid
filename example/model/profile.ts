@@ -1,5 +1,5 @@
 import { model } from 'zenorm';
-import { ProfileTable } from './_tables';
+import { ProfileTable } from './_tables.js';
 
 @model({
   pk: 'id',

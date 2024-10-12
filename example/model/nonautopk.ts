@@ -1,5 +1,5 @@
 import { model } from 'zenorm';
-import { NonautopkTable } from './_tables';
+import { NonautopkTable } from './_tables.js';
 
 @model({
   pk: 'id',

@@ -1,6 +1,6 @@
 import { propertyAt } from 'property-at';
 import { Element, ElementAttrValue } from 'element-easy-builder';
-import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, ColumnElementCallback, SortCallback } from './types';
+import { ColumnHeadResult, ColumnSelect, DataCallback, DataRow, ColumnElementCallback, SortCallback } from './types.js';
 
 export const KEY_SPLITER = '.';
 

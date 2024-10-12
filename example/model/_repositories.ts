@@ -1,14 +1,14 @@
 // zenorm 自动生成文件
 // 请不要修改此文件，因为此文件在每次重新生成数据库结构时会被覆盖
-// create at: 2023/4/23 18:11:01
+// create at: 2024/10/12 09:46:26
 // create by: yefei@-
 // database: zenorm_test
-import { QueryParam, createRepositoryQuery } from 'zenorm';
-import * as _tables from './_tables';
-import _Message from './message';
-import _Nonautopk from './nonautopk';
-import _Profile from './profile';
-import _User from './user';
+import { createRepositoryQuery, QueryParam } from 'zenorm';
+import * as _tables from './_tables.js';
+import _Message from './message.js';
+import _Nonautopk from './nonautopk.js';
+import _Profile from './profile.js';
+import _User from './user.js';
 
 let _bindQuery: QueryParam;
 function _query() { return typeof _bindQuery === 'function' ? _bindQuery() : _bindQuery }
@@ -28,6 +28,7 @@ export class Message extends _Message {
   static exists: typeof Message.repository.exists = Message.repository.exists.bind(Message.repository);
   static create: typeof Message.repository.create = Message.repository.create.bind(Message.repository);
   static createAndGet: typeof Message.repository.createAndGet = Message.repository.createAndGet.bind(Message.repository);
+  static getOrCreate: typeof Message.repository.getOrCreate = Message.repository.getOrCreate.bind(Message.repository);
   static save: typeof Message.repository.save = Message.repository.save.bind(Message.repository);
   static update: typeof Message.repository.update = Message.repository.update.bind(Message.repository);
   static delete: typeof Message.repository.delete = Message.repository.delete.bind(Message.repository);
@@ -52,6 +53,7 @@ export class Nonautopk extends _Nonautopk {
   static exists: typeof Nonautopk.repository.exists = Nonautopk.repository.exists.bind(Nonautopk.repository);
   static create: typeof Nonautopk.repository.create = Nonautopk.repository.create.bind(Nonautopk.repository);
   static createAndGet: typeof Nonautopk.repository.createAndGet = Nonautopk.repository.createAndGet.bind(Nonautopk.repository);
+  static getOrCreate: typeof Nonautopk.repository.getOrCreate = Nonautopk.repository.getOrCreate.bind(Nonautopk.repository);
   static save: typeof Nonautopk.repository.save = Nonautopk.repository.save.bind(Nonautopk.repository);
   static update: typeof Nonautopk.repository.update = Nonautopk.repository.update.bind(Nonautopk.repository);
   static delete: typeof Nonautopk.repository.delete = Nonautopk.repository.delete.bind(Nonautopk.repository);
@@ -76,6 +78,7 @@ export class Profile extends _Profile {
   static exists: typeof Profile.repository.exists = Profile.repository.exists.bind(Profile.repository);
   static create: typeof Profile.repository.create = Profile.repository.create.bind(Profile.repository);
   static createAndGet: typeof Profile.repository.createAndGet = Profile.repository.createAndGet.bind(Profile.repository);
+  static getOrCreate: typeof Profile.repository.getOrCreate = Profile.repository.getOrCreate.bind(Profile.repository);
   static save: typeof Profile.repository.save = Profile.repository.save.bind(Profile.repository);
   static update: typeof Profile.repository.update = Profile.repository.update.bind(Profile.repository);
   static delete: typeof Profile.repository.delete = Profile.repository.delete.bind(Profile.repository);
@@ -100,6 +103,7 @@ export class User extends _User {
   static exists: typeof User.repository.exists = User.repository.exists.bind(User.repository);
   static create: typeof User.repository.create = User.repository.create.bind(User.repository);
   static createAndGet: typeof User.repository.createAndGet = User.repository.createAndGet.bind(User.repository);
+  static getOrCreate: typeof User.repository.getOrCreate = User.repository.getOrCreate.bind(User.repository);
   static save: typeof User.repository.save = User.repository.save.bind(User.repository);
   static update: typeof User.repository.update = User.repository.update.bind(User.repository);
   static delete: typeof User.repository.delete = User.repository.delete.bind(User.repository);

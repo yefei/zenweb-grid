@@ -1,7 +1,7 @@
 {
   "name": "@zenweb/grid",
-  "packageManager": "yarn@4.0.2",
-  "version": "4.8.2",
+  "type": "module",
+  "version": "5.0.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -10,11 +10,10 @@
     "template"
   ],
   "scripts": {
-    "vscode": "yarn dlx @yarnpkg/sdks vscode",
     "build": "rimraf dist && tsc",
-    "prepack": "yarn run build",
-    "dbgen": "cd example && zenorm-generate .dbgen.json",
-    "dev": "cd example && cross-env DEBUG=\\* NODE_ENV=development ts-node app"
+    "prepack": "npm run build",
+    "dbgen": "cd example && zenorm-generate .dbgen.js",
+    "dev": "cd example && node --env-file=.env --loader ts-node/esm app.ts"
   },
   "author": {
     "name": "YeFei",
@@ -28,27 +27,29 @@
   "homepage": "https://zenweb.node.ltd",
   "devDependencies": {
     "@types/node": "^20.10.6",
-    "@zenorm/generate": "^1.4.0",
-    "@zenorm/generate-mysql": "^1.2.0",
-    "@zenweb/cors": "^4.0.0",
-    "@zenweb/form": "^5.4.3",
-    "@zenweb/mysql": "^4.1.1",
-    "@zenweb/template": "^4.0.0",
-    "@zenweb/template-nunjucks": "^3.3.0",
-    "cross-env": "^7.0.3",
+    "@zenorm/generate": "^2.0.1",
+    "@zenorm/generate-mysql": "^2.0.1",
+    "@zenweb/cors": "^5.1.0",
+    "@zenweb/form": "^6.0.0",
+    "@zenweb/mysql": "^5.0.0",
+    "@zenweb/template": "^5.1.0",
+    "@zenweb/template-nunjucks": "^4.0.0",
     "moment": "^2.29.4",
     "rimraf": "^4.3.1",
     "ts-node": "^10.9.1",
-    "typescript": "~5.3.3",
-    "zenorm": "^3.34.1",
-    "zenweb": "^4.2.7"
+    "typescript": "^5.3.3",
+    "zenorm": "^4.0.1",
+    "zenweb": "^5.1.0"
   },
   "dependencies": {
-    "@zenweb/core": "^4.3.2",
-    "@zenweb/helper": "^4.2.0",
-    "@zenweb/inject": "^4.1.1",
+    "@zenweb/core": "^5.1.0",
+    "@zenweb/helper": "^5.1.0",
+    "@zenweb/inject": "^5.1.0",
     "element-easy-builder": "^1.2.0",
     "property-at": "^1.0.1",
     "sql-easy-builder": "^2.16.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
