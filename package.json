@@ -1,7 +1,7 @@
 {
   "name": "@zenweb/grid",
   "type": "module",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -46,7 +46,7 @@
     "@zenweb/helper": "^5.1.0",
     "@zenweb/inject": "^5.1.0",
     "element-easy-builder": "^1.2.0",
-    "property-at": "^1.0.1",
+    "property-at": "^1.0.2",
     "sql-easy-builder": "^2.16.0"
   },
   "engines": {

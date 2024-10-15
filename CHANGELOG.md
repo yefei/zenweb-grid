@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.0.1] - 2024-10-15
+- fix: update property-at@1.0.2 属性值为 undefined 时错误
+
 ## [5.0.0] - 2024-10-12
 - ESM
 
