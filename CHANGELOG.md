@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.0.2] - 2024-10-17
+- 更新依赖 sql-easy-builder
+
 ## [5.0.1] - 2024-10-15
 - fix: update property-at@1.0.2 属性值为 undefined 时错误
 

@@ -1,7 +1,7 @@
 {
   "name": "@zenweb/grid",
   "type": "module",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -28,10 +28,10 @@
   "devDependencies": {
     "@types/node": "^20.10.6",
     "@zenorm/generate": "^2.0.1",
-    "@zenorm/generate-mysql": "^2.0.1",
+    "@zenorm/generate-mysql": "^2.1.0",
     "@zenweb/cors": "^5.1.0",
     "@zenweb/form": "^6.0.0",
-    "@zenweb/mysql": "^5.0.0",
+    "@zenweb/mysql": "^5.2.1",
     "@zenweb/template": "^5.1.0",
     "@zenweb/template-nunjucks": "^4.0.0",
     "moment": "^2.29.4",
@@ -47,7 +47,7 @@
     "@zenweb/inject": "^5.1.0",
     "element-easy-builder": "^1.2.0",
     "property-at": "^1.0.2",
-    "sql-easy-builder": "^2.16.0"
+    "sql-easy-builder": "^3.0.0"
   },
   "engines": {
     "node": ">=20"
