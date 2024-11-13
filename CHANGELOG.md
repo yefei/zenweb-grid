@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.0.3] - 2024-11-13
+- fix: filter.where 参数类型
+
 ## [5.0.2] - 2024-10-17
 - 更新依赖 sql-easy-builder
 

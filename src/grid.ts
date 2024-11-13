@@ -8,6 +8,7 @@ import { ColumnSelect, PageResult } from './types.js';
 import { Context } from "@zenweb/core";
 import { inject, init } from "@zenweb/inject";
 import { Element } from 'element-easy-builder';
+import { TypeKeys, TypeMap } from 'typecasts';
 
 const FILTER_PREFIX: string = 'f_';
 
@@ -30,7 +31,7 @@ export class Grid<D extends DataRow = DataRow> {
   private _columns: { [key: string]: Column<D> } = {};
   private _pageLimit: PageLimitOption = {};
   private _order?: string;
-  private _filters: { [key: string]: Filter } = {};
+  private _filters: { [key: string]: Filter<any> } = {};
   private _rowElementCallback?: RowElementCallback<D>;
 
   @inject protected ctx!: Context;
@@ -60,8 +61,8 @@ export class Grid<D extends DataRow = DataRow> {
    * @param key 过滤器字段名
    * @param field 表单字段
    */
-  filter(key: string, field: Field<any>) {
-    return this._filters[FILTER_PREFIX + key] = new Filter(key, field);
+  filter<T extends TypeKeys, R extends TypeMap[T]>(key: string, field: Field<T, R>) {
+    return this._filters[FILTER_PREFIX + key] = new Filter<T, R>(key, field);
   }
 
   /**
@@ -103,7 +104,7 @@ export class Grid<D extends DataRow = DataRow> {
       setup() {
         const fields: FormFields = {};
         for (const [name, filter] of Object.entries(gird._filters)) {
-          fields[name] = filter.field;
+          fields[name] = Filter.getField(filter);
         }
         return fields;
       }
@@ -114,7 +115,7 @@ export class Grid<D extends DataRow = DataRow> {
     const filterWheres: JsonWhere = {};
     if (form.data) {
       for (const [key, value] of Object.entries(form.data)) {
-        Object.assign(filterWheres, this._filters[key].whereBuilder(value));
+        Object.assign(filterWheres, Filter.whereBuilder(this._filters[key], value));
       }
     }
 

@@ -51,13 +51,13 @@ class UserGrid extends GridBase<User> {
       { label: "壮年", value: 2 },
       { label: "中年", value: 3 },
       { label: "老年", value: 4 },
-    ])).where(value => [
+    ])).where(value => value ? [
       { birthday: ageRange(0, 18) },
       { birthday: ageRange(18, 40) },
       { birthday: ageRange(18, 40) },
       { birthday: ageRange(40, 55) },
       { birthday: ageRange(55, 100) },
-    ][value]);
+    ][value] : undefined);
 
     this.filter("created_at", fields.dateRange('date[]').label("注册日期").end(new Date()))
     .where(value => ({ created_at: { $between: value } }));
