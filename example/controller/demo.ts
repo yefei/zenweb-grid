@@ -51,7 +51,7 @@ class UserGrid extends GridBase<User> {
       { label: "壮年", value: 2 },
       { label: "中年", value: 3 },
       { label: "老年", value: 4 },
-    ])).where(value => value ? [
+    ]).default(1)).where(value => value ? [
       { birthday: ageRange(0, 18) },
       { birthday: ageRange(18, 40) },
       { birthday: ageRange(18, 40) },
@@ -70,6 +70,16 @@ class UserGrid extends GridBase<User> {
       { label: "第二层", value: 2, parent: 1 },
     ])).where(() => {
       console.log('查询处理');
+      return {};
+    });
+
+    this.filter("ms", fields.multiple('int').label("多选").choices([
+      { label: "aaa", value: 1 },
+      { label: "bbb", value: 2 },
+      { label: "ccc", value: 3 },
+      { label: "ddd", value: 4 },
+    ]).max(5)).where((v) => {
+      console.log('多选结果:', v);
       return {};
     });
 
