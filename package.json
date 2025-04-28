@@ -30,7 +30,7 @@
     "@zenorm/generate": "^2.1.1",
     "@zenorm/generate-mysql": "^2.2.1",
     "@zenweb/cors": "^5.1.0",
-    "@zenweb/form": "^6.0.1",
+    "@zenweb/form": "^6.0.2",
     "@zenweb/mysql": "^5.2.3",
     "@zenweb/template": "^5.1.0",
     "@zenweb/template-nunjucks": "^4.0.0",

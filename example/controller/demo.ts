@@ -73,7 +73,7 @@ class UserGrid extends GridBase<User> {
       return {};
     });
 
-    this.filter("ms", fields.multiple('int').label("多选").choices([
+    this.filter("ms", fields.multiple('int[]').label("多选").choices([
       { label: "aaa", value: 1 },
       { label: "bbb", value: 2 },
       { label: "ccc", value: 3 },
