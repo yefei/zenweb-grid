@@ -59,21 +59,28 @@ class UserGrid extends GridBase<User> {
       { birthday: ageRange(55, 100) },
     ][value] : undefined);
 
-    this.filter("created_at", fields.dateRange('date[]').label("注册日期").end(new Date()))
+    this.filter("created_at", fields.dateRange('date[]').label("注册日期"))
     .where(value => ({ created_at: { $between: value } }));
+
+    this.filter("bd", fields.date('date').label('生日'))
+    .where(value => (value ? { birthday: value } : undefined));
 
     this.filter("search", fields.text('trim1').label("关键词搜索"))
     .where((value) => ({ name: { $like: `%${value}%` } }));
 
-    this.filter("cas", fields.cascader('int').label("级连选择").choices([
+    this.filter("cas", fields.cascader('?int[]').label("级连选择").max(3).choices([
       { label: "第一层", value: 1 },
-      { label: "第二层", value: 2, parent: 1 },
+      { label: "第二层1", value: 2, parent: 1 },
+      { label: "第二层2", value: 22, parent: 1 },
+      { label: "第二层3", value: 23, parent: 1 },
+      { label: "第二层4", value: 24, parent: 1 },
+      { label: "第二层5", value: 25, parent: 1 },
     ])).where(() => {
       console.log('查询处理');
       return {};
     });
 
-    this.filter("ms", fields.multiple('int[]').label("多选").choices([
+    this.filter("ms", fields.multiple('?int[]').label("多选").choices([
       { label: "aaa", value: 1 },
       { label: "bbb", value: 2 },
       { label: "ccc", value: 3 },
