@@ -1,7 +1,7 @@
 {
   "name": "@zenweb/grid",
   "type": "module",
-  "version": "5.0.3",
+  "version": "5.1.0",
   "description": "zenweb grid module",
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,33 +26,33 @@
   "license": "MIT",
   "homepage": "https://zenweb.node.ltd",
   "devDependencies": {
-    "@types/node": "^20.17.32",
-    "@zenorm/generate": "^2.1.1",
+    "@types/node": "^20.19.39",
+    "@zenorm/generate": "^2.2.0",
     "@zenorm/generate-mysql": "^2.2.1",
     "@zenweb/cors": "^5.1.0",
-    "@zenweb/form": "^6.0.2",
+    "@zenweb/form": "^6.1.0",
     "@zenweb/mysql": "^5.2.3",
     "@zenweb/template": "^5.1.0",
     "@zenweb/template-nunjucks": "^4.0.0",
     "moment": "^2.30.1",
     "rimraf": "^4.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "zenorm": "^4.1.0",
-    "zenweb": "^5.1.2"
+    "typescript": "^5.9.3",
+    "zenorm": "^4.3.0",
+    "zenweb": "^6.2.0"
   },
   "dependencies": {
-    "@zenweb/core": "^5.1.0",
-    "@zenweb/helper": "^5.1.0",
-    "@zenweb/inject": "^5.1.0",
+    "@zenweb/core": "^5.2.1",
+    "@zenweb/helper": "^5.2.0",
+    "@zenweb/inject": "^5.2.0",
     "element-easy-builder": "^1.2.0",
     "property-at": "^1.0.2",
-    "sql-easy-builder": "^3.0.0"
+    "sql-easy-builder": "^3.2.0"
   },
   "engines": {
     "node": ">=20"
   },
   "optionalDependencies": {
-    "typecasts": "^3.2.1"
+    "typecasts": "^3.4.0"
   }
 }

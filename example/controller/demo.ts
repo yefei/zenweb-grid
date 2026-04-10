@@ -1,4 +1,4 @@
-import { Context, mapping } from "zenweb";
+import { Context, Get } from "zenweb";
 import { fields } from '@zenweb/form';
 import moment from 'moment';
 import { GridBase } from "../../src/index.js";
@@ -105,7 +105,7 @@ export class DemoController {
   /**
    * 服务器端 html 渲染
    */
-  @mapping()
+  @Get()
   async index(ctx: Context, grid: UserGrid) {
     ctx.template('grid.html.njk');
     return {
@@ -116,12 +116,12 @@ export class DemoController {
   /**
    * 前后分离接口输出
    */
-  @mapping()
+  @Get()
   async grid(grid: UserGrid) {
     return await grid.fetch(User.find());
   }
 
-  @mapping()
+  @Get()
   test() {
     return User.find().limit(10).all();
   }

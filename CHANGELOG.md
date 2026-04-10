@@ -1,5 +1,8 @@
 # Changelog
 
+## [5.1.0] - 2026-4-10
+- refactor: TC39 装饰器命名规范
+
 ## [5.0.3] - 2024-11-13
 - fix: filter.where 参数类型
 

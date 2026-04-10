@@ -6,7 +6,7 @@ import { Filter } from "./filter.js";
 import { FetchResult, Finder, DataRow, RowElementCallback } from "./types.js";
 import { ColumnSelect, PageResult } from './types.js';
 import { Context } from "@zenweb/core";
-import { inject, init } from "@zenweb/inject";
+import { Inject, Init } from "@zenweb/inject";
 import { Element } from 'element-easy-builder';
 import { TypeKeys, TypeMap } from 'typecasts';
 
@@ -34,8 +34,8 @@ export class Grid<D extends DataRow = DataRow> {
   private _filters: { [key: string]: Filter<any> } = {};
   private _rowElementCallback?: RowElementCallback<D>;
 
-  @inject protected ctx!: Context;
-  @inject protected cast!: TypeCastHelper;
+  @Inject protected ctx!: Context;
+  @Inject protected cast!: TypeCastHelper;
 
   /**
    * 定义数据列
@@ -277,7 +277,7 @@ export class Grid<D extends DataRow = DataRow> {
 export abstract class GridBase<D extends DataRow = DataRow> extends Grid<D> {
   abstract setup(): void | Promise<void>;
 
-  @init [Symbol()]() {
+  @Init [Symbol()]() {
     return this.setup();
   }
 }

@@ -1,7 +1,7 @@
-import { model } from 'zenorm';
+import { Model } from 'zenorm';
 import { ProfileTable } from './_tables.js';
 
-@model({
+@Model({
   pk: 'id',
   table: 'profile',
 })
